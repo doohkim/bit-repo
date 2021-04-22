@@ -1,0 +1,14 @@
+server {
+    listen 80;
+    server_name localhost;
+    charset utf-8;
+
+    location / {
+        # 일반적으로 proxy로 요청을 넘겨 줄 경우 필요한 설정들
+        include         /etc/nginx/proxy_params;
+        proxy_pass      http://unix:/run/bit.sock;
+    }
+    location /static/ {
+        alias           /srv/binanace-coin/.static/;
+    }
+}

@@ -1,0 +1,6 @@
+
+data_collect/
+*.ipynb*
+
+*db.sqlite3
+*.csv

@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "binanace-coin"
+version = "0.1.0"
+description = ""
+authors = ["kimdooh <johnkdo2020@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.7.1"
+Django = "<3.0"
+pandas = "^1.2.3"
+django-crontab = "^0.7.1"
+ccxt = "^1.46.66"
+notebook = "^6.3.0"
+requests = "^2.25.1"
+pyupbit = "^0.2.14"
+djangorestframework = "^3.12.4"
+django-extensions = "^3.1.2"
+django-import-export = "^2.5.0"
+gunicorn = "^20.1.0"
+supervisor = "^4.2.2"
+psycopg2-binary = "^2.8.6"
+python-binance = "^0.7.11"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
