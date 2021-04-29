@@ -25,7 +25,7 @@ DATABASES = {
 # 배포하고나서 한번 테스트 해볼 필요가 있어!!!
 CRONTAB_COMMAND_SUFFIX = '2>&1'
 CRONJOBS = [
-    ('* * * * *', 'cron.search_binance', '>>' + BASE_DIR + '/log/binance_log.txt'),
+    ('* * * * *', 'cron.search_binance', '>>' + BASE_DIR + '/log/binance_log.log'),
     ('* * * * *', 'cron.search_up_bit_first', '>>' + BASE_DIR + '/log/first_bit_up.log'),
     ('* * * * *', 'cron.search_up_bit_second', '>>' + BASE_DIR + '/log/second_bit_up.log'),
     ('* * * * *', 'cron.search_up_bit_third', '>>' + BASE_DIR + '/log/third_bit_up.log'),
