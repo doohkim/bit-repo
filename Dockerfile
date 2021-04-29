@@ -4,6 +4,7 @@ RUN         apt -y update && apt -y dist-upgrade && apt -y autoremove
 RUN         apt -y install nginx
 RUN         apt-get install -y cron
 RUN         apt install nano
+RUN         apt install vim
 # poetry export로 생성된 requirements.txt를 적절히 복사
 COPY        ./requirements.txt /tmp/
 COPY        ./poetry.lock /tmp/

@@ -18,7 +18,7 @@ DOCKER_OPTIONS = [
 ]
 
 USER = 'ubuntu'
-HOST = '15.164.210.255'
+HOST = '13.209.232.17'
 TARGET = f'{USER}@{HOST}'
 HOME = str(Path.home())
 APPLICATION_NAME = 'binanace-coin'
