@@ -67,7 +67,7 @@ class UpBitExchange(models.Model):
         verbose_name_plural = '%s 목록' % verbose_name
 
     def __str__(self):
-        return f'MARKET: {self.english_name} | CLOSE PRICE: {self.close_price}'
+        return f'MARKET: {self.full_name} | CLOSE PRICE: {self.close_price}'
 
     def deposit_amount(self):
         date_time_now = datetime.datetime.now() + timedelta(hours=9) - timedelta(minutes=1)
