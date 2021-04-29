@@ -1,4 +1,5 @@
 secrets.json
+/log/
 .idea
 *.ipynb*
 .ipynv_checkpoints
