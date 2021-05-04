@@ -29,18 +29,18 @@ class UpBitCoinExchange(models.Model):
 
 class UpBitMarket(models.Model):
     coin = models.CharField('코인 종류', max_length=10, unique=True)
-    up_bit_withdraw_fee = models.FloatField('업비트출금수수로', )
-    up_bit_deposit_fee = models.FloatField('업비트입금수수료', )
-    up_bit_minimum_with_draw_amount = models.FloatField('업비트최소출금액', blank=True, null=True, )
-    binance_withdraw_fee = models.FloatField('바이낸스출금수수로', )
-    binance_deposit_fee = models.FloatField('바이낸스입금수수료', )
-    binance_minimum_with_draw_amount = models.FloatField('바이낸스최소출금액', blank=True, null=True, )
+    up_bit_withdraw_fee = models.FloatField('업비트출금수수로', default=0.0)
+    up_bit_deposit_fee = models.FloatField('업비트입금수수료', default=0.0)
+    up_bit_minimum_with_draw_amount = models.FloatField('업비트최소출금액', blank=True, null=True, default=0.0)
+    binance_withdraw_fee = models.FloatField('바이낸스출금수수로', default=0.0)
+    binance_deposit_fee = models.FloatField('바이낸스입금수수료', default=0.0)
+    binance_minimum_with_draw_amount = models.FloatField('바이낸스최소출금액', null=True, blank=True, default=0.0)
 
     class Meta:
         ordering = ['-pk']
         verbose_name = '업비트 마켓 정보'
         verbose_name_plural = '%s 목록' % verbose_name
-        # unique_together = ('paygouser', 'order_number', 'is_canceled')
+        # unique_together = ('paygouser', 'order_number', '')
 
     def __str__(self):
         return f'코인 : {self.coin} | 수수료 {self.up_bit_withdraw_fee}'
@@ -55,6 +55,8 @@ class UpBitExchange(models.Model):
     candle_date_time_kst = models.DateTimeField('코인 거래된 시간', )
     withdraw_status = models.BooleanField('출금 상태', default=False)
     deposit_status = models.BooleanField('입금 상태', default=False)
+    expected_revenue_rate = models.FloatField('기대수익률', default=0.0)
+    up_discrepancy_rate = models.FloatField('괴리율 정도', default=0.0)
     open_price = models.FloatField('시가', )
     high_price = models.FloatField('고가', )
     low_price = models.FloatField('저가', )
@@ -69,6 +71,7 @@ class UpBitExchange(models.Model):
     def __str__(self):
         return f'MARKET: {self.full_name} | CLOSE PRICE: {self.close_price}'
 
+    @property
     def deposit_amount(self):
         date_time_now = datetime.datetime.now() + timedelta(hours=9) - timedelta(minutes=1)
         datetime_now_before_one_minute = datetime.datetime(date_time_now.year,
@@ -78,7 +81,6 @@ class UpBitExchange(models.Model):
                                                            date_time_now.minute)
         up_bit_exchange_before_one_minute = UpBitExchange.objects.filter(
             candle_date_time_kst=datetime_now_before_one_minute).filter(english_name=self.english_name)[0]
-        #####################
         market_info = up_bit_exchange_before_one_minute.market
         # 매수가
         close_price = up_bit_exchange_before_one_minute.close_price
@@ -87,14 +89,13 @@ class UpBitExchange(models.Model):
         # 당초BTC보유량
         bit_coin_value = up_bit_exchange_before_one_minute.bit_coin_value
         init_have_btc_amount = 1000000 / bit_coin_value
-        # ALT매수량 = 당초BTC보유량 * (1-거래수수료율) / 매수가
+        # ALT 매수량 = 당초 BTC 보유량 * (1-거래수수료율) / 매수가
         alt_purchase_price = init_have_btc_amount * percentage / close_price
         # 출금수수료 = 매수거래소에서의 해당 해당코인의 출금 수수료(정액)
         withdraw_fee = market_info.up_bit_withdraw_fee
         # ALT 입금량 = ALT 매수량 - 출금수수료
         alt_deposit_amount = alt_purchase_price - withdraw_fee
         # 매도거래소
-        market_coin = market_info.coin
         # 매도거래소에서의거래수수료율(정률) 바이낸스 출금수수료
         binance_percentage = 0.999
         # 매도가 = 매도거래소에서의 해당코인 시장가
@@ -107,3 +108,6 @@ class UpBitExchange(models.Model):
         # ((최종BTC 보유량 / 당초BTC보유량) -1) *100
         proposed_get_money = ((final_have_btc_coin / init_have_btc_amount) - 1) * 100
         return proposed_get_money
+
+
+

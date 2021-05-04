@@ -43,6 +43,8 @@ class BitFinanceExchange(models.Model):
     deposit_status = models.BooleanField('입금 상태', default=False)
     candle_date_time_kst = models.DateTimeField('코인 거래된 시간', )
     bit_coin_value = models.FloatField('비트코인 가격', default=0)
+    expected_revenue_rate = models.FloatField('기대수익률', default=0.0)
+    binance_discrepancy_rate = models.FloatField('괴리율 정도', default=0.0)
     open_price = models.FloatField('시가', )
     high_price = models.FloatField('고가', )
     low_price = models.FloatField('저가', )
@@ -57,6 +59,7 @@ class BitFinanceExchange(models.Model):
     def __str__(self):
         return f'MARKET: {self.english_name} | CLOSE PRICE: {self.close_price}'
 
+    @property
     def deposit_amount(self):
         bit_exchange_before_one_minute = BitFinanceExchange.objects.filter(
             candle_date_time_kst=datetime_now_before_one_minute).filter(english_name=self.english_name)[0]
@@ -70,7 +73,7 @@ class BitFinanceExchange(models.Model):
         alt_purchase_price = init_have_btc_amount * binance_percentage / close_price
         withdraw_fee = market_info.binance_withdraw_fee
 
-        # ALT매수량 - 출금수수료
+        # ALT 매수량 - 출금수수료
         alt_deposit_amount = alt_purchase_price - withdraw_fee
         upbit_percentage = 0.9975
         upbit_exchange = market_info.upbitexchange_set.filter(candle_date_time_kst=datetime_now_before_one_minute)
@@ -81,8 +84,8 @@ class BitFinanceExchange(models.Model):
         proposed_get_money = ((final_have_btc_coin / init_have_btc_amount) - 1) * 100
         return proposed_get_money
 
+    @property
     def discrepancy_rate(self):
-        # date_time_now = datetime.datetime.now() + timedelta(hours=9) - timedelta(minutes=1)
 
         bit_exchange_before_one_minute = BitFinanceExchange.objects.filter(
             candle_date_time_kst=datetime_now_before_one_minute).filter(english_name=self.english_name)[0]

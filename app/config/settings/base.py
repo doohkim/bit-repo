@@ -19,6 +19,7 @@ from datetime import datetime
 _BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(_BASE_DIR)
 ROOT_DIR = os.path.dirname(BASE_DIR)
+TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 
 SECRETS_FULL = json.load(open(os.path.join(ROOT_DIR, 'secrets.json')))
 SECRET_KEY_VALUE = SECRETS_FULL['SECRET_KEY']
@@ -69,7 +70,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [TEMPLATES_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

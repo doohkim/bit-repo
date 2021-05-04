@@ -3,6 +3,8 @@ import jwt
 
 from datetime import timedelta
 import datetime
+import pandas as pd
+from django.db.models import Q
 from django.utils import timezone
 import time
 import requests
@@ -10,6 +12,7 @@ import json
 from binance.client import Client
 import ccxt
 
+from config.global_variable import selected_coin_kind, market_withdraw_fee_info
 from bit_finance.models import BitFinanceExchange
 from config.global_variable import bits_name_list
 from config.settings.base import SECRETS_FULL
@@ -21,6 +24,13 @@ datetime_now = datetime.datetime(date_time_now.year,
                                  date_time_now.day,
                                  date_time_now.hour,
                                  date_time_now.minute)
+
+date_time_now = timezone.now() + timezone.timedelta(hours=9) - timezone.timedelta(minutes=1)
+datetime_now_before_one_minute = datetime.datetime(date_time_now.year,
+                                                   date_time_now.month,
+                                                   date_time_now.day,
+                                                   date_time_now.hour,
+                                                   date_time_now.minute)
 
 
 def search_binance():
@@ -102,16 +112,16 @@ def single_compare_time_now_with_response_datetime(current_data, time_now_list):
     return c_data
 
 
-def single_minute_before_5_stamp():
-    date_time_now = datetime.datetime.now() + timedelta(hours=9)
-    datetime_now = datetime.datetime(
-        date_time_now.year,
-        date_time_now.month,
-        date_time_now.day,
-        date_time_now.hour,
-        date_time_now.minute
-    )
-    return datetime_now
+# def single_minute_before_5_stamp():
+#     date_time_now = datetime.datetime.now() + timedelta(hours=9)
+#     datetime_now = datetime.datetime(
+#         date_time_now.year,
+#         date_time_now.month,
+#         date_time_now.day,
+#         date_time_now.hour,
+#         date_time_now.minute
+#     )
+#     return datetime_now
 
 
 def with_draw_api_request_up_bit():
@@ -132,12 +142,13 @@ def with_draw_api_request_up_bit():
     try:
         print('withdraw api ', res.json()[:5])
 
-    except Exception:
-        print(Exception)
-        print('withdraw api ', res.text[:100])
+    except Exception as e:
+        print('wallet api  요청 에러', e)
+        print('text 형태 ', res.text[:100])
     print(datetime_now)
     if res.status_code == 401 or res.status_code == 404 or res.status_code == 429:
         return None
+    ################## 안전장치 필요 text값을 받야 하나
     status_withdraw = res.json()
     coin_kind_for_find_dict = dict()
     for i in status_withdraw:
@@ -148,13 +159,16 @@ def with_draw_api_request_up_bit():
 
 
 def bulk_up_bit_current_create(current_search_list):
+    # 비트코인 가격 api 요청
     url = "https://api.upbit.com/v1/candles/minutes/1"
     querystring = {"market": "KRW-BTC", "count": "1"}
     response = requests.request("GET", url, params=querystring)
     bit_coin_value = response.json()[0]['trade_price']
+    print('비트고인 가격 ', bit_coin_value)
 
     objects = list()
     for data in current_search_list:
+        coin_for_fee_value = data['market'].split('-')[1]
         if data['with_enable'] is not None:
             wallet_state = data['with_enable']
             if wallet_state == 'working':
@@ -172,21 +186,44 @@ def bulk_up_bit_current_create(current_search_list):
         else:
             withdraw_status = False
             deposit_status = False
+        # try:
+        #     fee_data_dict = market_withdraw_fee_info[data['market'].split('-')[1]]
+            # obj, _ = UpBitMarket.objects.get_or_create(
+            #     coin=data['market'].split('-')[1]
+            #     up_bit_withdraw_fee=fee_data_dict['업비트출금수수료']
+            #     up_bit_deposit_fee=0.0
+            #     up_bit_minimum_with_draw_amount=fee_data_dict['업비트최소출금금액']
+            #     binance_withdraw_fee=fee_data_dict['바이낸스출금수수료']
+            #     binance_deposit_fee=0.0
+            #     binance_minimum_with_draw_amount=fee_data_dict['바이낸스최소출금금액']
+            #
+            # )
+        #     market_get_or_create = True
+        # except Exception as e:
+        #     market_get_or_create = False
+        #     print(e)
+        # if not market_get_or_create:
+        try:
+            obj = UpBitMarket.objects.get(
+                coin=data['market'].split('-')[1],
+            )
+        except Exception as e:
+            print('인스턴스 찾기', e)
 
         try:
-            obj, _ = UpBitMarket.objects.get_or_create(coin=data['market'].split('-')[1])
+            fee_data_dict = market_withdraw_fee_info[coin_for_fee_value]
+            obj.up_bit_deposit_fee = 0.0
+            obj.up_bit_withdraw_fee = fee_data_dict['업비트출금수수료']
+            obj.up_bit_minimum_with_draw_amount = fee_data_dict['업비트최소출금금액']
+            obj.binance_deposit_fee = 0.0
+            obj.binance_withdraw_fee = fee_data_dict['바이낸스출금수수료']
+            obj.binance_minimum_with_draw_amount = fee_data_dict['바이낸스최소출금금액']
+            obj.save()
+            print('업데이트 성공 ', obj)
         except Exception as e:
-            print('bulk up up bit create market ', e)
-            obj, _ = UpBitMarket.objects.get_or_create(
-                coin=data['market'].split('-')[1],
-                up_bit_withdraw_fee=0.0,
-                up_bit_deposit_fee=0.0,
-                up_bit_minimum_with_draw_amount=0.0,
-                binance_withdraw_fee=0.0,
-                binance_deposit_fee=0.0,
-                binance_minimum_with_draw_amount=0.0
-            )
-
+            # pass
+            print('업데이트 실패', e)
+        # print('obj', obj)
         objects.append(
             UpBitExchange(
                 market=obj,
@@ -208,51 +245,56 @@ def bulk_up_bit_current_create(current_search_list):
 
 
 def search_up_bit_first():
-    time_now_list = single_minute_before_5_stamp()
 
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'
+    }
     url = "https://api.upbit.com/v1/candles/minutes/1"
+    # 입출금 가능여부 api 요청 데이터 가져옴
     coin_kind_for_find_dict = with_draw_api_request_up_bit()
 
     current_search_list = list()
+    # bits_name_list 업비트에서 취급하는 전체 데이터 api 요청 하루에 한번 업데이트 하는걸로 가자
     for kind in bits_name_list[:55]:
         coin_full_name = kind['market']
         coin_exchange_kind_split = coin_full_name.split('-')
+        # 코인 거래소
         coin_exchange = coin_exchange_kind_split[0]
+        # 코인 종류
         coin_kind = coin_exchange_kind_split[1]
+        # KRW-BTC 아닐경우와 그리고 거래소가 아니라면 소거 한다
+        # 둘중 하나라도 False 이면 소거함
         if coin_full_name != 'KRW-BTC' and coin_exchange != 'BTC':
             continue
+        # 업비트 분봉 api 요청
         querystring = {"market": f"{coin_full_name}", "count": "1"}
         response = requests.request("GET", url, headers=headers, params=querystring)
         try:
             current_data = response.json()
         except Exception as e:
-            print('first json error', e, response.status_code)
+            print('첫번째 업비트 코인 종류 분봉 api 첫번째 데이터 받는 방법 실패 json type error', e, response.status_code)
             try:
                 current_data = json.loads(response.text)
             except Exception as e:
-                print('first text error', e, response.status_code)
+                print('첫번째 업비트 코인 종류 분봉 api 두번째 데이터 받는 방법 실패 text error', e, response.status_code)
                 continue
-
-        five_ea_data_list = single_compare_time_now_with_response_datetime(current_data, time_now_list)
+        five_ea_data_list = single_compare_time_now_with_response_datetime(current_data, datetime_now)
         five_ea_data_list['english_name'] = kind['english_name']
         five_ea_data_list['korean_name'] = kind['korean_name']
         five_ea_data_list['full_name'] = coin_full_name
         if coin_kind_for_find_dict is not None:
+            # 입출금 가능여부 데이터 코인종류별로 assign
             with_draw_enable = coin_kind_for_find_dict[coin_kind]
             five_ea_data_list['with_enable'] = with_draw_enable['wallet_state']
         else:
             five_ea_data_list['with_enable'] = None
         current_search_list.append(five_ea_data_list)
         time.sleep(1)
-
     bits_objects = bulk_up_bit_current_create(current_search_list)
     UpBitExchange.objects.bulk_create(bits_objects)
 
 
 def search_up_bit_second():
-    time_now_list = single_minute_before_5_stamp()
     headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
     url = "https://api.upbit.com/v1/candles/minutes/1"
@@ -273,13 +315,13 @@ def search_up_bit_second():
         try:
             current_data = response.json()
         except Exception as e:
-            print('second json error', e, response.status_code)
+            print('두번째 업비트 코인 종류 분봉 api 첫번째 데이터 받는 방법 실패 json type error', e, response.status_code)
             try:
                 current_data = json.loads(response.text)
             except Exception as e:
-                print('second text error', e, response.status_code)
+                print('두번째 업비트 코인 종류 분봉 api 두번째 데이터 받는 방법 실패 text error', e, response.status_code)
                 continue
-        five_ea_data_list = single_compare_time_now_with_response_datetime(current_data, time_now_list)
+        five_ea_data_list = single_compare_time_now_with_response_datetime(current_data, datetime_now)
         five_ea_data_list['english_name'] = kind['english_name']
         five_ea_data_list['korean_name'] = kind['korean_name']
         five_ea_data_list['full_name'] = coin_full_name
@@ -295,7 +337,6 @@ def search_up_bit_second():
 
 
 def search_up_bit_third():
-    time_now_list = single_minute_before_5_stamp()
     headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
     url = "https://api.upbit.com/v1/candles/minutes/1"
@@ -315,13 +356,13 @@ def search_up_bit_third():
         try:
             current_data = response.json()
         except Exception as e:
-            print('third json error', e, response.status_code)
+            print('세번째 업비트 코인 종류 분봉 api 첫번째 데이터 받는 방법 실패 json type error', e, response.status_code)
             try:
                 current_data = json.loads(response.text)
             except Exception as e:
-                print('third text error', e, response.status_code)
+                print('세번째 업비트 코인 종류 분봉 api 두번째 데이터 받는 방법 실패 text error', e, response.status_code)
                 continue
-        five_ea_data_list = single_compare_time_now_with_response_datetime(current_data, time_now_list)
+        five_ea_data_list = single_compare_time_now_with_response_datetime(current_data, datetime_now)
         five_ea_data_list['english_name'] = kind['english_name']
         five_ea_data_list['korean_name'] = kind['korean_name']
         five_ea_data_list['full_name'] = coin_full_name
@@ -335,81 +376,110 @@ def search_up_bit_third():
     bits_objects = bulk_up_bit_current_create(current_search_list)
     UpBitExchange.objects.bulk_create(bits_objects)
 
-#
-# def backup_data():
-#     date_time_now = datetime.datetime.now() + timedelta(hours=9)
-#     now_str = date_time_now.strftime('%Y%m%d')
-#     up_bit_objects = UpBitCoinExchange.objects.all().values()
-#     df_upbit = pd.DataFrame(up_bit_objects)
-#     df_upbit = df_upbit.sort_values(by=['candle_date_time_kst'])
-#     df_upbit.to_csv(f'upbit_data_{now_str}.csv')
-#
-#     bit_objects = BitFinanceCoinExchange.objects.all().values()
-#     df_bit = pd.DataFrame(bit_objects)
-#     df_bit = df_bit.sort_values(by=['candle_date_time_kst'])
-#     df_bit.to_csv(f'binance_data{now_str}.csv')
-#
-#     aday = date_time_now - timedelta(days=1)
-#     aday_str = aday.strftime('%Y%m%d')
-#     df_bit_0419_csv = pd.read_csv(f'./data_collect/binance_data_210419_to_{aday_str}.csv')
-#     df_concat = pd.concat([df_bit_0419_csv, df_bit])
-#     df_concat.to_csv(f'./data_collect/binance_data_210419_to_{now_str}.csv')
-#
-#     df_up_bit_0419_csv = pd.read_csv(f'./data_collect/upbit_data_210419_to_{aday_str}.csv')
-#     df_concat = pd.concat([df_up_bit_0419_csv, df_upbit])
-#     df_concat.to_csv(f'./data_collect/upbit_data_210419_to_{now_str}.csv')
 
+def save_execute_table():
+    for coin_name in selected_coin_kind.values():
 
-# def minute_before_5_stamp():
-#     time_stamp_list = list()
-#     for index in range(5):
-#         date_time_now = datetime.datetime.now() + timedelta(hours=9)
-#         datetime_minute = date_time_now - timedelta(minutes=index)
-#         datetime_now = datetime.datetime(
-#             datetime_minute.year,
-#             datetime_minute.month,
-#             datetime_minute.day,
-#             datetime_minute.hour,
-#             datetime_minute.minute)
-#         time_stamp_list.append(datetime_now)
-#     return time_stamp_list
-#
-#
-# def compare_time_now_with_response_datetime(current_data, time_now_list):
-#     count = 0
-#     five_ea_data_list = list()
-#     for c_data, t_data in zip(current_data, time_now_list):
-#         time_data = datetime.datetime.strptime(c_data['candle_date_time_kst'].replace('T', ' '), '%Y-%m-%d %H:%M:00')
-#         response_datetime = datetime.datetime(time_data.year, time_data.month, time_data.day, time_data.hour,
-#                                               time_data.minute)
-#         if response_datetime in time_now_list:
-#             count += 1
-#             continue
-#         else:
-#             c_data['candle_date_time_kst'] = time_now_list[count]
-#             c_data['candle_acc_trade_volume'] = 0
-#             count += 1
-#         five_ea_data_list.append(c_data)
-#     return five_ea_data_list
+        market_obj = UpBitMarket.objects.get(coin=coin_name)
+        # 업비트 수수료 정보 & 1분전 데이터 불러오기
+        up_obj = market_obj.upbitexchange_set.filter(candle_date_time_kst=datetime_now_before_one_minute)
+        # 출금수수료 = 매수거래소에서의 해당 해당코인의 출금 수수료(정액)
+        up_bit_withdraw_fee = market_obj.up_bit_withdraw_fee
+        up_bit_minimum_with_draw_amount = market_obj.up_bit_minimum_with_draw_amount
+        up_bit_deposit_fee = market_obj.up_bit_deposit_fee
+        # 바이낸스 수수료 정보 & 1분전 데이터 불러오기
+        binance_obj = market_obj.bitfinanceexchange_set.filter(candle_date_time_kst=datetime_now_before_one_minute)
+        binance_withdraw_fee = market_obj.binance_withdraw_fee
+        binance_minimum_with_draw_amount = market_obj.binance_withdraw_fee
+        binance_deposit_fee = market_obj.binance_deposit_fee
+        up_percentage = 0.9975
+        binance_percentage = 0.999
+        if up_obj.exists() and binance_obj.exists():
+            up_obj = up_obj.first()
+            market_obj = up_obj.market
+            up_close_price = up_obj.close_price
+            # 거래 수수로율 = 매수거래소에서의 거래 수수로율
+            #         up_percentage = 0.9975
+            # 업비트 비트코인 가격
+            up_bit_coin_value = up_obj.bit_coin_value
+            # 업비트에서의 당초 BTC 보유량
+            up_init_have_btc_amount = 1000000 / up_bit_coin_value
+            # 업비트에서 ALT 매수량 = 당초 BTC 보유량 * (1-거래수수료율) / 매수가
+            up_alt_purchase_price = up_init_have_btc_amount * up_percentage / up_close_price
+            # ALT 입금량 = ALT 매수량 - 출금수수료
+            up_alt_deposit_amount = up_alt_purchase_price - up_bit_withdraw_fee
 
+            #         매도거래소
+            binance_obj = binance_obj.first()
+            binance_close_price = binance_obj.close_price
+            # 최종 BTC 보유량 = ALT 입금량 * (1 - 거래수수료율) * 매도가
+            up_final_have_btc_coin = up_alt_deposit_amount * binance_percentage * binance_close_price
+            up_expected_revenue_rate = ((up_final_have_btc_coin / up_init_have_btc_amount) - 1) * 100
 
-# def bulk_object_create(current_search_list):
-#     objects = list()
-#     for data in current_search_list:
-#         # obj, _ = UpBitMarket.objects.get_or_create(coin=data['market'].split('-')[0], )
-#         objects.append(
-#             UpBitCoinExchange(
-#                 market=data['market'].split('-')[0],
-#                 korean_name=data['korean_name'],
-#                 english_name=data['english_name'],
-#                 kind=data['market'].split('-')[1],
-#                 candle_date_time_kst=data['candle_date_time_kst'],
-#                 open_price=data['opening_price'],
-#                 low_price=data['low_price'],
-#                 high_price=data['high_price'],
-#                 close_price=data['trade_price'],
-#                 volume=data['candle_acc_trade_volume'],
-#
-#             )
-#         )
-#     return objects
+            up_obj.expected_revenue_rate = up_expected_revenue_rate
+            up_obj.up_discrepancy_rate = up_close_price / binance_close_price
+            up_obj.save()
+
+            # 바이낸스에서 시작 할때
+            binance_bit_coin_value = binance_obj.bit_coin_value
+            #         # 바이낸스에서 당초 BTC 보유량
+            binance_init_have_btc_amount = 1000000 / binance_bit_coin_value
+            binance_alt_purchase_price = binance_init_have_btc_amount * binance_percentage / binance_close_price
+            binance_alt_deposit_amount = binance_alt_purchase_price - binance_withdraw_fee
+            binance_final_have_btc_coin = binance_alt_deposit_amount * up_percentage * up_close_price
+            binance_expected_revenue_rate = ((binance_final_have_btc_coin / binance_init_have_btc_amount) - 1) * 100
+            binance_obj.expected_revenue_rate = binance_expected_revenue_rate
+            binance_obj.binance_discrepancy_rate = binance_close_price / up_close_price
+            binance_obj.save()
+
+    # def fee_edit():
+    #
+    #     total_df = pd.read_csv('./send_fee_rate.csv')
+    #
+    #     dff = total_df.rename(columns=total_df.iloc[0]).drop(total_df.index[0])
+    #     dff.rename(columns={dff.columns[0]: "coin"}, inplace=True)
+    #     df = total_df.rename(columns={'업비트': '업비트최소출금액', 'Unnamed: 2': '업비트입금수수료',
+    #     'Unnamed: 3': '업비트출금수수료', '바이낸스': '바이낸스최소출금액',
+    #     'Unnamed: 5': '바이낸스입금수수료', 'Unnamed: 6': '바이낸스출금수수료', }).drop(
+    #         total_df.index[0])
+
+    #
+    #
+    #     aa = list()
+    # for coin, up_bit_minimum_with_draw_amount, up_bit_deposit_fee, up_bit_withdraw_fee,
+    #     binance_minimum_with_draw_amount, binance_deposit_fee, binance_withdraw_fee in zip(
+    #         df['코인/토큰'], df['업비트최소출금액'], df['업비트입금수수료'], df['업비트출금수수료'],
+    #                 df['바이낸스최소출금액'], df['바이낸스입금수수료'], df['바이낸스출금수수료']):
+    #         bbb = dict()
+    #         up_bit_minimum_with_draw_amount = 0
+    #         up_bit_withdraw_fee = float(up_bit_withdraw_fee.replace(',', ''))
+    #
+    #         binance_minimum_with_draw_amount = float(binance_minimum_with_draw_amount.replace(',', ''))
+    #         binance_withdraw_fee = float(binance_withdraw_fee.replace(',', ''))
+    #         bbb[coin] = {
+    #             "업비트최소출금금액": 0,
+    #             "업비트출금수수료": up_bit_withdraw_fee,
+    #             "바이낸스최소출금금액": binance_minimum_with_draw_amount,
+    #             "바이낸스출금수수료": binance_withdraw_fee
+    #
+    #         }
+    #         aa.append(bbb)
+    #
+    #         market, _ = UpBitMarket.objects.get_or_create(
+    #             coin=coin,
+    #         )
+    #
+    #         # 업비트 출금 수수료
+    #         market.up_bit_withdraw_fee = up_bit_withdraw_fee
+    #         # 업비트 입금 수수료
+    #         market.up_bit_deposit_fee = 0
+    #         # 업비트 최소 출금 금액
+    #         market.up_bit_minimum_with_draw_amount = 0
+    #
+    #         # 바이낸스 출금 수수료
+    #         market.binance_withdraw_fee = binance_withdraw_fee
+    #         # 바이낸스 입금 수수료
+    #         market.binance_deposit_fee = 0
+    #         # 바이낸스 최소 출금 금액
+    #         market.binance_minimum_with_draw_amount = binance_minimum_with_draw_amount
+    #         market.save()
