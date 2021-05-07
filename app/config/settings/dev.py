@@ -29,5 +29,5 @@ CRONJOBS = [
     ('* * * * *', 'cron.search_up_bit_first', '>>' + BASE_DIR + '/log/first_bit_up.log'),
     ('* * * * *', 'cron.search_up_bit_second', '>>' + BASE_DIR + '/log/second_bit_up.log'),
     ('* * * * *', 'cron.search_up_bit_third', '>>' + BASE_DIR + '/log/third_bit_up.log'),
-    # ('* * * * *', 'cron.save_execute_table', '>>' + BASE_DIR + '/log/save_execute_table.log'),
+    ('* * * * *', 'cron.save_execute_table', '>>' + BASE_DIR + '/log/save_execute_table.log'),
 ]

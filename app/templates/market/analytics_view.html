@@ -5,35 +5,54 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <style>
+        table, th, td {
+          border: 1px solid black;
+          border-collapse: collapse;
+        }
+        th, td {
+          padding: 5px;
+        }
+        th {
+          text-align: left;
+        }
+
+    </style>
     <title>Document</title>
-    <div>
-        <h2>업비트 매수거래소 바이낸스 매도 거래소 경우</h2>
+    <h2>업비트 매수거래소 바이낸스 매도 거래소 경우</h2>
 
-        <div>
-
-{% for key, value in each_coin_analytics_dict.items %}
-                <div>코인</div>
-                <div>{{key}}</div>
-                <div>값</div>
-                <div>{{value}}</div>
-{% endfor %}
-        </div>
-
-        <div>
-            <div>{{value}}</div>
-        </div>
-<!--            <div>{{ data.up_expected_revenue_rate}}</div>-->
-<!--        <div>-->
-<!--            <div>바이낸스가 매수거래소 일 경우</div>-->
-<!--            <div>{{ data.binance_price_trend}}</div>-->
-<!--            <div>{{ data.binance_degree_of_discrepancy}}</div>-->
-<!--            <div>{{ data.binance_expected_revenue_rate}}</div>-->
-<!--        </div>-->
-
-
-    </div>
 </head>
 <body>
+<table>
+    <tr>
+        <th>코인</th>
 
+        <th>시작 날짜</th>
+        <th>업비트 매수 거래소 기대 수익률</th>
+        <th>업비트 매수 거래소 괴리율 정도</th>
+        <th>업비트 매수 거래소 추세 값</th>
+
+        <th>시작 날짜</th>
+        <th>바이낸스 매수 거래소 기대 수익률</th>
+        <th>바이낸스 매수 거래소 괴리율 정도</th>
+        <th>바이낸스 매수 거래소 추세 값</th>
+
+    </tr>
+    {% for key, value in each_coin_analytics_dict.items %}
+    <tr>
+        <td>{{key}}</td>
+
+        <td>{{value.binance_date}}</td>
+        <td>{{value.up_expected_revenue_rate}}</td>
+        <td>{{value.up_degree_of_discrepancy}}</td>
+        <td>{{value.up_price_trend}}</td>
+
+        <td>{{value.up_date}}</td>
+        <td>{{value.binance_expected_revenue_rate}}</td>
+        <td>{{value.binance_degree_of_discrepancy}}</td>
+        <td>{{value.binance_price_trend}}</td>
+    </tr>
+    {% endfor %}
+</table>
 </body>
 </html>

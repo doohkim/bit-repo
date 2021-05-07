@@ -378,6 +378,7 @@ def search_up_bit_third():
 
 
 def save_execute_table():
+    print(datetime_now_before_one_minute)
     for coin_name in selected_coin_kind.values():
 
         market_obj = UpBitMarket.objects.get(coin=coin_name)
