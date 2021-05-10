@@ -90,16 +90,15 @@ def analytics_view(request):
                 binance_line_fitter.fit(binance_x, binance_y)
                 # 가격 추세(매도)
                 # 업비트가 매소거래소 => 매도거래소(바이낸스) 현재가 - 추세값
-                up_price_trend = df['binance_close_price'][0] - (
-                        binance_line_fitter.coef_ * 60) + binance_line_fitter.intercept_
-
-                analytics_data_dict['up_price_trend'] = up_price_trend[0][0]
+                # up_price_trend = df['binance_close_price'][0] - (
+                #         binance_line_fitter.coef_ * 60) + binance_line_fitter.intercept_
+                analytics_data_dict['binance_coef'] = binance_line_fitter.coef_[0][0]
+                # analytics_data_dict['up_price_trend'] = up_price_trend[0][0]
             except Exception as e:
                 message = e
-                analytics_data_dict['up_price_trend'] = message
-
-            analytics_data_dict['up_expected_revenue_rate'] = up_obj.first().expected_revenue_rate
-
+                analytics_data_dict['binance_coef'] = message
+            up_first_obj = up_obj.first()
+            analytics_data_dict['up_expected_revenue_rate'] = up_first_obj.expected_revenue_rate
             # 바이낸스가 매수 거래소 업비트가 매도 거래소 일 경우
 
             # 6시간 데이터 괴리율의 정도
@@ -114,23 +113,39 @@ def analytics_view(request):
             try:
                 up_line_fitter.fit(up_x, up_y)
                 # 바이낸스가 매소거래소 => 매도거래소(업비트) 현재가 - 추세값
-                binance_price_trend = df['up_close_price'][0] - (up_line_fitter.coef_ * 60) + up_line_fitter.intercept_
-                analytics_data_dict['binance_coef'] = up_line_fitter.coef_
-                analytics_data_dict['binance_intercept'] = up_line_fitter.intercept_
+                # binance_price_trend = df['up_close_price'][0]-(up_line_fitter.coef_ * 60) + up_line_fitter.intercept_
+                analytics_data_dict['up_coef'] = up_line_fitter.coef_[0][0]
+                
+                # analytics_data_dict['binance_intercept'] = up_line_fitter.intercept_[0][0]
                 # 매도 거래소 업비트의 가격 추세
-                analytics_data_dict['binance_price_trend'] = binance_price_trend
+                # analytics_data_dict['binance_price_trend'] = binance_price_trend
             except Exception as e:
                 message = e
-                analytics_data_dict['binance_price_trend'] = message
+                analytics_data_dict['up_coef'] = message
 
             # 바이낸스의 괴리율 정도
+            binance_first_obj = binance_obj.first()
             analytics_data_dict['binance_degree_of_discrepancy'] = binance_degree_of_discrepancy
             analytics_data_dict['binance_date'] = df['binance_date'][0]
             analytics_data_dict['up_date'] = df['up_date'][0]
             # 바이낸스의 기대 수익률
-            analytics_data_dict['binance_expected_revenue_rate'] = binance_obj.first().expected_revenue_rate
+            analytics_data_dict['binance_expected_revenue_rate'] = binance_first_obj.expected_revenue_rate
+            analytics_data_dict[
+                'transaction_price'] = binance_first_obj.transaction_price + up_first_obj.transaction_price
             each_coin_analytics_dict[coin_name] = analytics_data_dict
+
+    expected_df = pd.DataFrame(each_coin_analytics_dict).transpose()
+    expected_df['new'] = \
+        (expected_df['up_degree_of_discrepancy'] / expected_df['up_degree_of_discrepancy'].max() * 0.143) +\
+        (expected_df['up_coef'] / expected_df['up_coef'].max() * 0.057) + \
+        (expected_df['up_expected_revenue_rate'] / expected_df['up_expected_revenue_rate'].max() * 0.4) +\
+        (expected_df['binance_coef'] / expected_df['binance_coef'].max() * 0.29) +\
+        (expected_df['transaction_price'] / expected_df['transaction_price'].max() * 0.17)
+
+    result_index = pd.to_numeric(expected_df['new']).idxmax(axis=0)
+
     context = {
-        "each_coin_analytics_dict": each_coin_analytics_dict,
+        'coin': result_index,
+        "result": each_coin_analytics_dict[result_index]
     }
     return render(request, 'market/analytics_view.html', context)

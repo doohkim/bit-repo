@@ -62,6 +62,7 @@ class UpBitExchange(models.Model):
     low_price = models.FloatField('저가', )
     close_price = models.FloatField('종가', )
     volume = models.FloatField('거래량', )
+    transaction_price = models.FloatField('거래대금', default=0.0)
 
     class Meta:
         ordering = ['-candle_date_time_kst']

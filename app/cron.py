@@ -382,21 +382,23 @@ def save_execute_table():
     for coin_name in selected_coin_kind.values():
 
         market_obj = UpBitMarket.objects.get(coin=coin_name)
-        # 업비트 수수료 정보 & 1분전 데이터 불러오기
-        up_obj = market_obj.upbitexchange_set.filter(candle_date_time_kst=datetime_now_before_one_minute)
         # 출금수수료 = 매수거래소에서의 해당 해당코인의 출금 수수료(정액)
         up_bit_withdraw_fee = market_obj.up_bit_withdraw_fee
         up_bit_minimum_with_draw_amount = market_obj.up_bit_minimum_with_draw_amount
         up_bit_deposit_fee = market_obj.up_bit_deposit_fee
         # 바이낸스 수수료 정보 & 1분전 데이터 불러오기
-        binance_obj = market_obj.bitfinanceexchange_set.filter(candle_date_time_kst=datetime_now_before_one_minute)
         binance_withdraw_fee = market_obj.binance_withdraw_fee
         binance_minimum_with_draw_amount = market_obj.binance_withdraw_fee
         binance_deposit_fee = market_obj.binance_deposit_fee
+
+        # 업비트 수수료 정보 & 1분전 데이터 불러오기
+        up_obj = market_obj.upbitexchange_set.filter(candle_date_time_kst=datetime_now_before_one_minute)
+        binance_obj = market_obj.bitfinanceexchange_set.filter(candle_date_time_kst=datetime_now_before_one_minute)
         up_percentage = 0.9975
         binance_percentage = 0.999
         if up_obj.exists() and binance_obj.exists():
             up_obj = up_obj.first()
+            up_bit_volume = up_obj.volume
             market_obj = up_obj.market
             up_close_price = up_obj.close_price
             # 거래 수수로율 = 매수거래소에서의 거래 수수로율
@@ -412,6 +414,7 @@ def save_execute_table():
 
             #         매도거래소
             binance_obj = binance_obj.first()
+            binance_volume = binance_obj.volume
             binance_close_price = binance_obj.close_price
             # 최종 BTC 보유량 = ALT 입금량 * (1 - 거래수수료율) * 매도가
             up_final_have_btc_coin = up_alt_deposit_amount * binance_percentage * binance_close_price
@@ -419,6 +422,9 @@ def save_execute_table():
 
             up_obj.expected_revenue_rate = up_expected_revenue_rate
             up_obj.up_discrepancy_rate = up_close_price / binance_close_price
+            # 거래대금 = (매수거래소 거래량 * 매수거래소 현재가) + (매도거래소 거래량 * 매도거래소 현재가)
+            up_obj.transaction_price = up_bit_volume * up_close_price
+
             up_obj.save()
 
             # 바이낸스에서 시작 할때
@@ -431,56 +437,6 @@ def save_execute_table():
             binance_expected_revenue_rate = ((binance_final_have_btc_coin / binance_init_have_btc_amount) - 1) * 100
             binance_obj.expected_revenue_rate = binance_expected_revenue_rate
             binance_obj.binance_discrepancy_rate = binance_close_price / up_close_price
+            binance_obj.transaction_price = binance_volume * binance_close_price
             binance_obj.save()
 
-    # def fee_edit():
-    #
-    #     total_df = pd.read_csv('./send_fee_rate.csv')
-    #
-    #     dff = total_df.rename(columns=total_df.iloc[0]).drop(total_df.index[0])
-    #     dff.rename(columns={dff.columns[0]: "coin"}, inplace=True)
-    #     df = total_df.rename(columns={'업비트': '업비트최소출금액', 'Unnamed: 2': '업비트입금수수료',
-    #     'Unnamed: 3': '업비트출금수수료', '바이낸스': '바이낸스최소출금액',
-    #     'Unnamed: 5': '바이낸스입금수수료', 'Unnamed: 6': '바이낸스출금수수료', }).drop(
-    #         total_df.index[0])
-
-    #
-    #
-    #     aa = list()
-    # for coin, up_bit_minimum_with_draw_amount, up_bit_deposit_fee, up_bit_withdraw_fee,
-    #     binance_minimum_with_draw_amount, binance_deposit_fee, binance_withdraw_fee in zip(
-    #         df['코인/토큰'], df['업비트최소출금액'], df['업비트입금수수료'], df['업비트출금수수료'],
-    #                 df['바이낸스최소출금액'], df['바이낸스입금수수료'], df['바이낸스출금수수료']):
-    #         bbb = dict()
-    #         up_bit_minimum_with_draw_amount = 0
-    #         up_bit_withdraw_fee = float(up_bit_withdraw_fee.replace(',', ''))
-    #
-    #         binance_minimum_with_draw_amount = float(binance_minimum_with_draw_amount.replace(',', ''))
-    #         binance_withdraw_fee = float(binance_withdraw_fee.replace(',', ''))
-    #         bbb[coin] = {
-    #             "업비트최소출금금액": 0,
-    #             "업비트출금수수료": up_bit_withdraw_fee,
-    #             "바이낸스최소출금금액": binance_minimum_with_draw_amount,
-    #             "바이낸스출금수수료": binance_withdraw_fee
-    #
-    #         }
-    #         aa.append(bbb)
-    #
-    #         market, _ = UpBitMarket.objects.get_or_create(
-    #             coin=coin,
-    #         )
-    #
-    #         # 업비트 출금 수수료
-    #         market.up_bit_withdraw_fee = up_bit_withdraw_fee
-    #         # 업비트 입금 수수료
-    #         market.up_bit_deposit_fee = 0
-    #         # 업비트 최소 출금 금액
-    #         market.up_bit_minimum_with_draw_amount = 0
-    #
-    #         # 바이낸스 출금 수수료
-    #         market.binance_withdraw_fee = binance_withdraw_fee
-    #         # 바이낸스 입금 수수료
-    #         market.binance_deposit_fee = 0
-    #         # 바이낸스 최소 출금 금액
-    #         market.binance_minimum_with_draw_amount = binance_minimum_with_draw_amount
-    #         market.save()

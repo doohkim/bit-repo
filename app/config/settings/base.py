@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "django_crontab",
-    'search.apps.SearchConfig',
     'rest_framework',
     'rest_framework.authtoken',
     'django_extensions',

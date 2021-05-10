@@ -18,7 +18,7 @@
         }
 
     </style>
-    <title>Document</title>
+    <title>one day one million</title>
     <h2>업비트 매수거래소 바이낸스 매도 거래소 경우</h2>
 
 </head>
@@ -27,32 +27,34 @@
     <tr>
         <th>코인</th>
 
-        <th>시작 날짜</th>
+        <th>업비트 시작 날짜</th>
         <th>업비트 매수 거래소 기대 수익률</th>
         <th>업비트 매수 거래소 괴리율 정도</th>
-        <th>업비트 매수 거래소 추세 값</th>
+        <th>업비트 매수 거래소 회귀계수 값</th>
 
-        <th>시작 날짜</th>
+        <th>바이낸스 시작 날짜</th>
         <th>바이낸스 매수 거래소 기대 수익률</th>
         <th>바이낸스 매수 거래소 괴리율 정도</th>
-        <th>바이낸스 매수 거래소 추세 값</th>
+        <th>바이낸스 매수 거래소 회귀계수 값</th>
+        <th>거래대금</th>
 
     </tr>
-    {% for key, value in each_coin_analytics_dict.items %}
+
     <tr>
-        <td>{{key}}</td>
+        <td>{{coin}}</td>
 
-        <td>{{value.binance_date}}</td>
-        <td>{{value.up_expected_revenue_rate}}</td>
-        <td>{{value.up_degree_of_discrepancy}}</td>
-        <td>{{value.up_price_trend}}</td>
+        <td>{{result.up_date}}</td>
+        <td>{{result.up_expected_revenue_rate}}</td>
+        <td>{{result.up_degree_of_discrepancy}}</td>
+        <td>{{result.up_coef}}</td>
 
-        <td>{{value.up_date}}</td>
-        <td>{{value.binance_expected_revenue_rate}}</td>
-        <td>{{value.binance_degree_of_discrepancy}}</td>
-        <td>{{value.binance_price_trend}}</td>
+        <td>{{result.binance_date}}</td>
+        <td>{{result.binance_expected_revenue_rate}}</td>
+        <td>{{result.binance_degree_of_discrepancy}}</td>
+        <td>{{result.binance_coef}}</td>
+        <td>{{result.transaction_price}}</td>
     </tr>
-    {% endfor %}
+
 </table>
 </body>
 </html>
