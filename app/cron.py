@@ -140,7 +140,7 @@ def with_draw_api_request_up_bit():
     res = requests.get(server_url + "/v1/status/wallet", headers=headers)
     print(res.status_code)
     try:
-        print('withdraw api ', res.json()[:5])
+        print('withdraw api ', res.json()[:2])
 
     except Exception as e:
         print('wallet api  요청 에러', e)
@@ -148,7 +148,6 @@ def with_draw_api_request_up_bit():
     print(datetime_now)
     if res.status_code == 401 or res.status_code == 404 or res.status_code == 429:
         return None
-    ################## 안전장치 필요 text값을 받야 하나
     status_withdraw = res.json()
     coin_kind_for_find_dict = dict()
     for i in status_withdraw:
@@ -164,7 +163,6 @@ def bulk_up_bit_current_create(current_search_list):
     querystring = {"market": "KRW-BTC", "count": "1"}
     response = requests.request("GET", url, params=querystring)
     bit_coin_value = response.json()[0]['trade_price']
-    print('비트고인 가격 ', bit_coin_value)
 
     objects = list()
     for data in current_search_list:
@@ -204,7 +202,8 @@ def bulk_up_bit_current_create(current_search_list):
         #     print(e)
         # if not market_get_or_create:
         try:
-            obj = UpBitMarket.objects.get(
+            print(data['market'])
+            obj, _ = UpBitMarket.objects.get_or_create(
                 coin=data['market'].split('-')[1],
             )
         except Exception as e:
@@ -411,14 +410,16 @@ def save_execute_table():
             up_alt_purchase_price = up_init_have_btc_amount * up_percentage / up_close_price
             # ALT 입금량 = ALT 매수량 - 출금수수료
             up_alt_deposit_amount = up_alt_purchase_price - up_bit_withdraw_fee
-
+            # print('업비트 ', up_alt_deposit_amount)
             #         매도거래소
             binance_obj = binance_obj.first()
             binance_volume = binance_obj.volume
             binance_close_price = binance_obj.close_price
             # 최종 BTC 보유량 = ALT 입금량 * (1 - 거래수수료율) * 매도가
+            # print('종가', binance_close_price)
             up_final_have_btc_coin = up_alt_deposit_amount * binance_percentage * binance_close_price
             up_expected_revenue_rate = ((up_final_have_btc_coin / up_init_have_btc_amount) - 1) * 100
+            # print('업비트 기대수익률', up_expected_revenue_rate)
 
             up_obj.expected_revenue_rate = up_expected_revenue_rate
             up_obj.up_discrepancy_rate = up_close_price / binance_close_price
@@ -431,8 +432,13 @@ def save_execute_table():
             binance_bit_coin_value = binance_obj.bit_coin_value
             #         # 바이낸스에서 당초 BTC 보유량
             binance_init_have_btc_amount = 1000000 / binance_bit_coin_value
+            # print('종가', binance_close_price)
+            # print('종가', binance_init_have_btc_amount)
             binance_alt_purchase_price = binance_init_have_btc_amount * binance_percentage / binance_close_price
             binance_alt_deposit_amount = binance_alt_purchase_price - binance_withdraw_fee
+            # print('종가', up_close_price)
+            # print('percentage', up_percentage)
+            # print('매수 입급 양', binance_alt_deposit_amount)
             binance_final_have_btc_coin = binance_alt_deposit_amount * up_percentage * up_close_price
             binance_expected_revenue_rate = ((binance_final_have_btc_coin / binance_init_have_btc_amount) - 1) * 100
             binance_obj.expected_revenue_rate = binance_expected_revenue_rate

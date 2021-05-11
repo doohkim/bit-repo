@@ -18,6 +18,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('up/', include('up_bits.urls')),
+    path('exchange/', include('up_bits.urls')),
     # path('binance/', include('bit_finance.urls'))
 ]

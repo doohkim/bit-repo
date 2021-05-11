@@ -1,6 +1,6 @@
-from django.urls import path
-
-url_patterns = {
-
-    path('', )
-}
+# from django.urls import path
+#
+# url_patterns = {
+#
+#     path('', )
+# }

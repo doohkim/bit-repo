@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <style>
+        table, th, td {
+          border: 1px solid black;
+          border-collapse: collapse;
+        }
+        th, td {
+          padding: 5px;
+        }
+        th {
+          text-align: left;
+        }
+
+    </style>
+    <title>one day one million</title>
+    <h2>바이낸스 매수거래소 업비트 매도 거래소 경우</h2>
+
+</head>
+<body>
+<table>
+    <tr>
+        <th>코인</th>
+
+        <th>바이낸스 시작 날짜</th>
+        <th>바이낸스 매수 거래소 기대 수익률</th>
+        <th>바이낸스 매수 거래소 괴리율 정도</th>
+        <th>바이낸스 매수 거래소 회귀계수 값</th>
+
+        <th>업비트 시작 날짜</th>
+        <th>업비트 매도 거래소 회귀계수 값</th>
+        <th>거래대금</th>
+
+    </tr>
+
+    <tr>
+        <td>{{coin}}</td>
+
+        <td>{{result.binance_date}}</td>
+        <td>{{result.binance_expected_revenue_rate}}</td>
+        <td>{{result.binance_degree_of_discrepancy}}</td>
+        <td>{{result.binance_coef}}</td>
+
+        <td>{{result.binance_date}}</td>
+        <td>{{result.up_coef}}</td>
+        <td>{{result.transaction_price}}</td>
+    </tr>
+
+</table>
+</body>
+</html>

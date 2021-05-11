@@ -3,29 +3,6 @@ from django.db import models
 import datetime
 from datetime import timedelta
 
-from django.utils import timezone
-
-
-class UpBitCoinExchange(models.Model):
-    market = models.CharField('시장 거래소', max_length=10)
-    kind = models.CharField('코인 종류', max_length=50)
-    english_name = models.CharField('코인 영어이름', max_length=50, null=True, blank=True)
-    korean_name = models.CharField('한국 코인 이름', max_length=50, null=True, blank=True)
-    candle_date_time_kst = models.DateTimeField('코인 거래된 시간', )
-    open_price = models.FloatField('시가', )
-    high_price = models.FloatField('고가', )
-    low_price = models.FloatField('저가', )
-    close_price = models.FloatField('종가', )
-    volume = models.FloatField('거래량', )
-
-    class Meta:
-        ordering = ['-candle_date_time_kst']
-        verbose_name = '업비트 코인 현재가 '
-        verbose_name_plural = '%s 목록' % verbose_name
-
-    def __str__(self):
-        return f'MARKET: {self.english_name} | CLOSE PRICE: {self.close_price}'
-
 
 class UpBitMarket(models.Model):
     coin = models.CharField('코인 종류', max_length=10, unique=True)
@@ -51,10 +28,10 @@ class UpBitExchange(models.Model):
     full_name = models.CharField('코인-거래소', max_length=20, null=True, blank=True)
     english_name = models.CharField('코인 영어이름', max_length=50, null=True, blank=True)
     korean_name = models.CharField('한국 코인 이름', max_length=50, null=True, blank=True)
-    bit_coin_value = models.FloatField('비트코인 가격', default=0)
-    candle_date_time_kst = models.DateTimeField('코인 거래된 시간', )
     withdraw_status = models.BooleanField('출금 상태', default=False)
     deposit_status = models.BooleanField('입금 상태', default=False)
+    candle_date_time_kst = models.DateTimeField('코인 거래된 시간', )
+    bit_coin_value = models.FloatField('비트코인 가격', default=0)
     expected_revenue_rate = models.FloatField('기대수익률', default=0.0)
     up_discrepancy_rate = models.FloatField('괴리율 정도', default=0.0)
     open_price = models.FloatField('시가', )
@@ -109,6 +86,3 @@ class UpBitExchange(models.Model):
         # ((최종BTC 보유량 / 당초BTC보유량) -1) *100
         proposed_get_money = ((final_have_btc_coin / init_have_btc_amount) - 1) * 100
         return proposed_get_money
-
-
-
