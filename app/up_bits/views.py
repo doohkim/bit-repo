@@ -7,6 +7,7 @@ from django.db.models import Q
 import pandas as pd
 from config.global_variable import selected_coin_kind
 from up_bits.models import UpBitMarket
+import numpy as np
 
 
 def binance_buy_exchange_view(request):
@@ -38,21 +39,26 @@ def binance_buy_exchange_view(request):
         )
 
         if up_obj.exists() and binance_obj.exists():
-            binance_df = pd.DataFrame(binance_obj.values('candle_date_time_kst', 'close_price', 'expected_revenue_rate',
-                                                         'binance_discrepancy_rate')
-                                      .distinct('candle_date_time_kst')[::2])
+            binance_df = pd.DataFrame(
+                binance_obj.values('english_name', 'candle_date_time_kst', 'close_price', 'expected_revenue_rate',
+                                   'binance_discrepancy_rate')
+                    .distinct('english_name', 'candle_date_time_kst')[::2])
 
             binance_df = binance_df.rename(
-                columns={binance_df.columns[0]: "binance_date", binance_df.columns[1]: "binance_close_price",
-                         binance_df.columns[2]: "binance_expected_revenue_rate",
-                         binance_df.columns[3]: "binance_discrepancy_rate"}
+                columns={'english_name': 'binance_full_name', 'candle_date_time_kst': "binance_date",
+                         'close_price': "binance_close_price",
+                         'expected_revenue_rate': "binance_expected_revenue_rate",
+                         'binance_discrepancy_rate': "binance_discrepancy_rate"}
             )
-            up_df = pd.DataFrame(up_obj.values('candle_date_time_kst', 'close_price', 'expected_revenue_rate',
-                                               'up_discrepancy_rate').distinct('candle_date_time_kst')[::2])
+            up_df = pd.DataFrame(
+                up_obj.values('full_name', 'candle_date_time_kst', 'close_price', 'expected_revenue_rate',
+                              'up_discrepancy_rate').distinct('full_name', 'candle_date_time_kst')[::2])
 
             up_df = up_df.rename(
-                columns={up_df.columns[0]: "up_date", up_df.columns[1]: "up_close_price",
-                         up_df.columns[2]: "up_expected_revenue_rate", up_df.columns[3]: "up_discrepancy_rate"}
+                columns={'full_name': 'up_full_name', 'candle_date_time_kst': "up_date",
+                         'close_price': "up_close_price",
+                         'expected_revenue_rate': "up_expected_revenue_rate",
+                         'up_discrepancy_rate': "up_discrepancy_rate"}
             )
             df = pd.concat([binance_df, up_df], axis=1)
             up_isnull_index_list = list()
@@ -74,39 +80,50 @@ def binance_buy_exchange_view(request):
                     elif 'up' in column:
                         up_min_index = min(up_isnull_index_list)
                         df[column].fillna(df[column][up_min_index - 1], inplace=True)
+
             # 6시간 바이낸스 괴리율 정도
             binance_degree_of_discrepancy = (df['binance_discrepancy_rate'][0] - df[
                 'binance_discrepancy_rate'].mean()) / df['binance_discrepancy_rate'].std()
             analytics_data_dict['binance_degree_of_discrepancy'] = binance_degree_of_discrepancy
-            up_x = df['up_close_price'].values.reshape(-1, 1)
-            up_y = df['up_date'].values.reshape(-1, 1)
+            # 한시간 매도 거래소 회귀 계수
+            up_x = df['up_close_price'].values[:30].reshape(-1, 1)
+            up_y = df['up_date'].values[:30].reshape(-1, 1)
             up_line_fitter = LinearRegression()
             try:
                 up_line_fitter.fit(up_x, up_y)
                 analytics_data_dict['up_coef'] = up_line_fitter.coef_[0][0]
             except Exception as e:
-                message = e
-                analytics_data_dict['up_coef'] = message
+                analytics_data_dict['up_coef'] = e
 
-            binance_x = df['binance_close_price'].values.reshape(-1, 1)
-            binance_y = df['binance_date'].values.reshape(-1, 1)
-            binance_line_fitter = LinearRegression()
             try:
+                up_line_fitter6 = LinearRegression()
+                up_x6 = df['up_close_price'].values.reshape(-1, 1)
+                up_y6 = df['up_date'].values.reshape(-1, 1)
+                up_line_fitter6.fit(up_x6, up_y6)
+                analytics_data_dict['up_coef6'] = up_line_fitter6.coef_[0][0]
+            except Exception as e:
+                analytics_data_dict['up_coef6'] = e
+
+            binance_first_obj = binance_obj.first()
+            analytics_data_dict['binance_deposit_status'] = binance_first_obj.deposit_status
+            analytics_data_dict['binance_withdraw_status'] = binance_first_obj.withdraw_status
+            analytics_data_dict['binance_expected_revenue_rate'] = binance_first_obj.expected_revenue_rate
+            analytics_data_dict['binance_close_price'] = binance_first_obj.close_price
+
+            try:
+                binance_x = df['binance_close_price'].values[:30].reshape(-1, 1)
+                binance_y = df['binance_date'].values[:30].reshape(-1, 1)
+                binance_line_fitter = LinearRegression()
                 binance_line_fitter.fit(binance_x, binance_y)
-                # 가격 추세(매도)
-                # 업비트가 매소거래소 => 매도거래소(바이낸스) 현재가 - 추세값
-                # up_price_trend = df['binance_close_price'][0] - (
-                #         binance_line_fitter.coef_ * 60) + binance_line_fitter.intercept_
                 analytics_data_dict['binance_coef'] = binance_line_fitter.coef_[0][0]
                 # analytics_data_dict['up_price_trend'] = up_price_trend[0][0]
             except Exception as e:
                 message = e
                 analytics_data_dict['binance_coef'] = message
-            binance_first_obj = binance_obj.first()
+
             analytics_data_dict['binance_date'] = df['binance_date'][0]
             analytics_data_dict['up_date'] = df['up_date'][0]
             up_first_obj = up_obj.first()
-            analytics_data_dict['binance_expected_revenue_rate'] = binance_first_obj.expected_revenue_rate
             analytics_data_dict[
                 'transaction_price'] = binance_first_obj.transaction_price + up_first_obj.transaction_price
             each_coin_analytics_dict[coin_name] = analytics_data_dict
@@ -144,6 +161,8 @@ def analytics_view(request):
                                                    date_time_now.minute, tzinfo=pytz.UTC)
 
     each_coin_analytics_dict = dict()
+    #     up_data = list()
+    #     bi_data = list()
     for coin_name in selected_coin_kind.values():
         analytics_data_dict = dict()
 
@@ -158,22 +177,28 @@ def analytics_view(request):
         )
 
         if up_obj.exists() and binance_obj.exists():
-            binance_df = pd.DataFrame(binance_obj.values('candle_date_time_kst', 'close_price', 'expected_revenue_rate',
-                                                         'binance_discrepancy_rate')
-                                      .distinct('candle_date_time_kst')[::2])
+            binance_df = pd.DataFrame(
+                binance_obj.values('english_name', 'candle_date_time_kst', 'close_price', 'expected_revenue_rate',
+                                   'binance_discrepancy_rate').distinct('english_name', 'candle_date_time_kst')[::2])
 
             binance_df = binance_df.rename(
-                columns={binance_df.columns[0]: "binance_date", binance_df.columns[1]: "binance_close_price",
-                         binance_df.columns[2]: "binance_expected_revenue_rate",
-                         binance_df.columns[3]: "binance_discrepancy_rate"}
+                columns={'english_name': 'binance_full_name', 'candle_date_time_kst': "binance_date",
+                         'close_price': "binance_close_price",
+                         'expected_revenue_rate': "binance_expected_revenue_rate",
+                         'binance_discrepancy_rate': "binance_discrepancy_rate"}
             )
-            up_df = pd.DataFrame(up_obj.values('candle_date_time_kst', 'close_price', 'expected_revenue_rate',
-                                               'up_discrepancy_rate').distinct('candle_date_time_kst')[::2])
+            up_df = pd.DataFrame(
+                up_obj.values('full_name', 'candle_date_time_kst', 'close_price', 'expected_revenue_rate',
+                              'up_discrepancy_rate').distinct('full_name', 'candle_date_time_kst')[::2])
 
             up_df = up_df.rename(
-                columns={up_df.columns[0]: "up_date", up_df.columns[1]: "up_close_price",
-                         up_df.columns[2]: "up_expected_revenue_rate", up_df.columns[3]: "up_discrepancy_rate"}
+                columns={'full_name': 'up_full_name', 'candle_date_time_kst': "up_date",
+                         'close_price': "up_close_price",
+                         'expected_revenue_rate': "up_expected_revenue_rate",
+                         'up_discrepancy_rate': "up_discrepancy_rate"}
             )
+            #             up_data.append(up_obj.values().distinct('full_name', 'candle_date_time_kst'))
+            #             bi_data.append(binance_obj.values().distinct('english_name', 'candle_date_time_kst'))
             df = pd.concat([binance_df, up_df], axis=1)
             up_isnull_index_list = list()
             if df['up_date'].isnull().sum() != 0:
@@ -203,8 +228,9 @@ def analytics_view(request):
             analytics_data_dict['up_degree_of_discrepancy'] = up_degree_of_discrepancy
             # 업비트가 매수 거래소 바이낸스가 매도 거래소 일 경우
             # 가격 추세
-            binance_x = df['binance_close_price'].values[:30].reshape(-1, 1)
-            binance_y = df['binance_date'].values[:30].reshape(-1, 1)
+            sort_df = df.sort_values('binance_date')
+            binance_x = np.arange(1, 31).reshape(-1, 1)
+            binance_y = sort_df['binance_close_price'].values[:30].reshape(-1, 1)
             binance_line_fitter = LinearRegression()
             try:
                 binance_line_fitter.fit(binance_x, binance_y)
@@ -215,18 +241,17 @@ def analytics_view(request):
                 #         binance_line_fitter.coef_ * 60) + binance_line_fitter.intercept_
                 # analytics_data_dict['up_price_trend'] = up_price_trend[0][0]
             except Exception as e:
-                message = e
-                analytics_data_dict['binance_coef'] = message
+                analytics_data_dict['binance_coef'] = e
+
+            binance_x6 = np.arange(1, 182).reshape(-1, 1)
+            binance_y6 = sort_df['binance_close_price'].values.reshape(-1, 1)
+            binance_line_fitter6 = LinearRegression()
 
             try:
-                binance_line_fitter6 = LinearRegression()
-                binance_x6 = df['binance_close_price'].values.reshape(-1, 1)
-                binance_y6 = df['binance_date'].values.reshape(-1, 1)
                 binance_line_fitter6.fit(binance_x6, binance_y6)
                 analytics_data_dict['binance_coef6'] = binance_line_fitter6.coef_[0][0]
             except Exception as e:
-                message = e
-                analytics_data_dict['binance_coef6'] = message
+                analytics_data_dict['binance_coef6'] = e
 
             up_first_obj = up_obj.first()
             analytics_data_dict['up_deposit_status'] = up_first_obj.deposit_status
@@ -239,27 +264,24 @@ def analytics_view(request):
             # (현재 괴리율 - 6시간 평균 괴리율) / 표준편차
             # binance_degree_of_discrepancy = (df['binance_discrepancy_rate'][0] - df[
             #     'binance_discrepancy_rate'].mean()) / df['binance_discrepancy_rate'].std()
-            #
-            up_x = df['up_close_price'].values[:30].reshape(-1, 1)
-            up_y = df['up_date'].values[:30].reshape(-1, 1)
-            up_line_fitter = LinearRegression()
 
             try:
+                up_x = np.arange(1, 31).reshape(-1, 1)
+                up_y = sort_df['up_close_price'].values[:30].reshape(-1, 1)
+                up_line_fitter = LinearRegression()
                 up_line_fitter.fit(up_x, up_y)
                 #  바이낸스가 매소거래소 => 매도거래소(업비트) 현재가 - 추세값
                 # binance_price_trend = df['up_close_price'][0]-(up_line_fitter.coef_ * 60) + up_line_fitter.intercept_
                 analytics_data_dict['up_coef'] = up_line_fitter.coef_[0][0]
-            #
-            #     # analytics_data_dict['binance_intercept'] = up_line_fitter.intercept_[0][0]
-            #     # 매도 거래소 업비트의 가격 추세
-            #     # analytics_data_dict['binance_price_trend'] = binance_price_trend
+
+                # analytics_data_dict['binance_intercept'] = up_line_fitter.intercept_[0][0]
+                # 매도 거래소 업비트의 가격 추세
+                # analytics_data_dict['binance_price_trend'] = binance_price_trend
             except Exception as e:
-                message = e
-                analytics_data_dict['up_coef'] = message
+                analytics_data_dict['up_coef'] = e
 
             # 바이낸스의 괴리율 정도
             binance_first_obj = binance_obj.first()
-
             analytics_data_dict['binance_deposit_status'] = binance_first_obj.deposit_status
             analytics_data_dict['binance_withdraw_enable'] = binance_first_obj.withdraw_status
             analytics_data_dict['binance_close_price'] = binance_first_obj.close_price
@@ -274,10 +296,10 @@ def analytics_view(request):
 
     expected_df = pd.DataFrame(each_coin_analytics_dict).transpose()
     cut_index = expected_df[(expected_df['up_expected_revenue_rate'] <= 0) | (expected_df['binance_coef'] <= 0)
-                            | (expected_df['binance_deposit_status'] is False)
-                            | (expected_df['binance_withdraw_enable'] is False)
-                            | (expected_df['up_deposit_status'] is False)
-                            | (expected_df['up_withdraw_enable'] is False)].index
+                            | (expected_df['binance_deposit_status'] == False)
+                            | (expected_df['binance_withdraw_enable'] == False)
+                            | (expected_df['up_deposit_status'] == False)
+                            | (expected_df['up_withdraw_enable'] == False)].index
     expected_ddf = expected_df.drop(cut_index)
     # 업비트 기대수익률 * 40% + 업비트 괴리율 정도 * 14.3% +  업비트 회귀계수 * 5.7% +
     # 바이낸스(매도거래소) 회귀계수 * 2.9% + 거래대금 * 17%
@@ -295,3 +317,5 @@ def analytics_view(request):
         "result": each_coin_analytics_dict[result_index]
     }
     return render(request, 'market/analytics_view.html', context)
+
+

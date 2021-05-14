@@ -422,7 +422,7 @@ def save_execute_table():
             # print('업비트 기대수익률', up_expected_revenue_rate)
 
             up_obj.expected_revenue_rate = up_expected_revenue_rate
-            up_obj.up_discrepancy_rate = up_close_price / binance_close_price
+            up_obj.up_discrepancy_rate = binance_close_price / up_close_price
             # 거래대금 = (매수거래소 거래량 * 매수거래소 현재가) + (매도거래소 거래량 * 매도거래소 현재가)
             up_obj.transaction_price = up_bit_volume * up_close_price
 
@@ -442,7 +442,7 @@ def save_execute_table():
             binance_final_have_btc_coin = binance_alt_deposit_amount * up_percentage * up_close_price
             binance_expected_revenue_rate = ((binance_final_have_btc_coin / binance_init_have_btc_amount) - 1) * 100
             binance_obj.expected_revenue_rate = binance_expected_revenue_rate
-            binance_obj.binance_discrepancy_rate = binance_close_price / up_close_price
+            binance_obj.binance_discrepancy_rate = up_close_price / binance_close_price
             binance_obj.transaction_price = binance_volume * binance_close_price
             binance_obj.save()
 

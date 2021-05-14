@@ -26,29 +26,46 @@
 <table>
     <tr>
         <th>코인</th>
+        <th>업비트 입금 상태</th>
+        <th>업비트 출금 상태</th>
+        <th>바이낸스 입금 상태</th>
+        <th>바이낸스 출금 상태</th>
 
-        <th>바이낸스 시작 날짜</th>
-        <th>바이낸스 매수 거래소 기대 수익률</th>
-        <th>바이낸스 매수 거래소 괴리율 정도</th>
-        <th>바이낸스 매수 거래소 회귀계수 값</th>
+        <th>업비트 종가</th>
+        <th>바이낸스 종가></th>
 
-        <th>업비트 시작 날짜</th>
-        <th>업비트 매도 거래소 회귀계수 값</th>
-        <th>거래대금</th>
+        <th>바이낸스 기대 수익률</th>
+        <th>바이낸스 괴리율 정도</th>
+        <th>업비트 매도 1시간 회귀계수</th>
+        <th>바이낸스 거래대금</th>
+        <th>바이낸스 매수 1시간 회귀 계수</th>
+        <th>업비트 매도 6시간 회귀 계수</th>
+        <th>바이낸스 타임스탬프</th>
+
+
 
     </tr>
 
     <tr>
         <td>{{coin}}</td>
 
-        <td>{{result.binance_date}}</td>
+        <td>{{result.up_deposit_status}}</td>
+        <td>{{result.up_withdraw_enable}}</td>
+        <td>{{result.binance_deposit_status}}</td>
+        <td>{{result.binance_withdraw_enable}}</td>
+
+        <td>{{result.up_close_price}}</td>
+        <td>{{result.binance_close_price}}</td>
+
+
         <td>{{result.binance_expected_revenue_rate}}</td>
         <td>{{result.binance_degree_of_discrepancy}}</td>
-        <td>{{result.binance_coef}}</td>
-
-        <td>{{result.binance_date}}</td>
         <td>{{result.up_coef}}</td>
         <td>{{result.transaction_price}}</td>
+        <td>{{result.binance_coef}}</td>
+        <td>{{result.up_coef6}}</td>
+
+        <td>{{result.up_date}}</td>
     </tr>
 
 </table>

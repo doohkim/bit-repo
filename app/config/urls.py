@@ -19,5 +19,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('exchange/', include('up_bits.urls')),
-    # path('binance/', include('bit_finance.urls'))
+    path('test/', include('bit_finance.urls'))
 ]

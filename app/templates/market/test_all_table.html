@@ -30,10 +30,8 @@
         <th>업비트 출금 상태</th>
         <th>바이낸스 입금 상태</th>
         <th>바이낸스 출금 상태</th>
-
         <th>업비트 종가</th>
         <th>바이낸스 종가></th>
-
         <th>업비트 기대 수익률</th>
         <th>업비트 괴리율 정도</th>
         <th>바이낸스 매도 1시간 회귀계수</th>
@@ -41,32 +39,42 @@
         <th>업비트 매수 1시간 회귀 계수</th>
         <th>바이낸스 매도 6시간 회귀 계수</th>
         <th>업비트 타임스탬프</th>
-
-
+        <th>바이낸스 타임스탬프</th>
+        <th>스케일 다운 업비트 기대수익률 </th>
+        <th>스케일 다운 업비트 괴리율 </th>
+        <th>스케일 다운 업비트 1시간 회귀 계수 </th>
+        <th>스케일 다운 거래대금</th>
+        <th>스케일 다운 바이낸스 1시간 회귀 계수</th>
+        <th>스케일 다운 바이낸스 6시간 회귀 계수</th>
+        <th>총 점수</th>
     </tr>
-
+    {% for coin, value in data %}
     <tr>
         <td>{{coin}}</td>
+        <td>{{value.3}}</td>
+        <td>{{value.4}}</td>
+        <td>{{value.9}}</td>
+        <td>{{value.10}}</td>
+        <td>{{value.6}}</td>
+        <td>{{value.11}}</td>
+        <td>{{value.5}}</td>
+        <td>{{value.0}}</td>
 
-        <td>{{result.up_deposit_status}}</td>
-        <td>{{result.up_withdraw_enable}}</td>
-        <td>{{result.binance_deposit_status}}</td>
-        <td>{{result.binance_withdraw_enable}}</td>
-
-        <td>{{result.up_close_price}}</td>
-        <td>{{result.binance_close_price}}</td>
-
-
-        <td>{{result.up_expected_revenue_rate}}</td>
-        <td>{{result.up_degree_of_discrepancy}}</td>
-        <td>{{result.binance_coef}}</td>
-        <td>{{result.transaction_price}}</td>
-        <td>{{result.up_coef}}</td>
-        <td>{{result.binance_coef6}}</td>
-
-        <td>{{result.up_date}}</td>
+        <td>{{value.1}}</td>
+        <td>{{value.13}}</td>
+        <td>{{value.8}}</td>
+        <td>{{value.2}}</td>
+        <td>{{value.7}}</td>
+        <td>{{value.12}}</td>
+        <td>{{value.14}}</td>
+        <td>{{value.15}}</td>
+        <td>{{value.16}}</td>
+        <td>{{value.17}}</td>
+        <td>{{value.18}}</td>
+        <td>{{value.19}}</td>
+        <td>{{value.20}}</td>
     </tr>
-
+    {% endfor %}
 </table>
 </body>
 </html>
