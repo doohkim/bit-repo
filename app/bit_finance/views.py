@@ -11,18 +11,8 @@ import numpy as np
 
 
 def test_expected_table_view(request):
-    date_time_now = timezone.now() + timezone.timedelta(hours=3) - timezone.timedelta(minutes=1)
-    date_time_now_one_minute_ago = timezone.now() + timezone.timedelta(hours=9) - timezone.timedelta(minutes=1)
-    datetime_now_before_one_minute = datetime.datetime(date_time_now_one_minute_ago.year,
-                                                       date_time_now_one_minute_ago.month,
-                                                       date_time_now_one_minute_ago.day,
-                                                       date_time_now_one_minute_ago.hour,
-                                                       date_time_now_one_minute_ago.minute, tzinfo=pytz.UTC)
-    datetime_now_six_hours_ago = datetime.datetime(date_time_now.year,
-                                                   date_time_now.month,
-                                                   date_time_now.day,
-                                                   date_time_now.hour,
-                                                   date_time_now.minute, tzinfo=pytz.UTC)
+    datetime_now_before_one_minute = datetime.datetime(2021, 5, 12, 16, 52, tzinfo=pytz.UTC)
+    datetime_now_six_hours_ago = datetime.datetime(2021, 5, 12, 10, 52, tzinfo=pytz.UTC)
     each_coin_analytics_dict = dict()
     for coin_name in selected_coin_kind.values():
         analytics_data_dict = dict()
