@@ -362,8 +362,10 @@ def test_expected_table_view(request):
     data = zip(expected_df.index, expected_df.values)
     context = {
         'data': data,
+        'from': '업비트',
+        'to': '바이낸스'
     }
-    return render(request, 'market/test_all_table.html', context)
+    return render(request, 'market/test_up_bit_expected.html', context)
 
 
 def check_data_view(request):
