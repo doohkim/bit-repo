@@ -402,7 +402,7 @@ def save_execute_table():
             # 업비트 비트코인 가격
             up_bit_coin_value = up_obj.bit_coin_value
             # 업비트에서의 당초 BTC 보유량
-            up_init_have_btc_amount = 1000000 / up_bit_coin_value
+            up_init_have_btc_amount = 300000 / up_bit_coin_value
             # 업비트에서 ALT 매수량 = 당초 BTC 보유량 * (1-거래수수료율) / 매수가
             up_alt_purchase_price = up_init_have_btc_amount * up_percentage / up_close_price
             # ALT 입금량 = ALT 매수량 - 출금수수료
@@ -428,7 +428,7 @@ def save_execute_table():
             # 바이낸스에서 시작 할때
             binance_bit_coin_value = binance_obj.bit_coin_value
             #         # 바이낸스에서 당초 BTC 보유량
-            binance_init_have_btc_amount = 1000000 / binance_bit_coin_value
+            binance_init_have_btc_amount = 300000 / binance_bit_coin_value
             # print('종가', binance_close_price)
             # print('종가', binance_init_have_btc_amount)
             binance_alt_purchase_price = binance_init_have_btc_amount * binance_percentage / binance_close_price

@@ -41,9 +41,6 @@
         <th>바이낸스 매수 1시간 회귀 계수</th>
         <th>업비트 매도 6시간 회귀 계수</th>
         <th>바이낸스 타임스탬프</th>
-
-
-
     </tr>
 
     <tr>
@@ -63,7 +60,6 @@
         <td>{{result.transaction_price}}</td>
         <td>{{result.binance_coef}}</td>
         <td>{{result.up_coef6}}</td>
-
         <td>{{result.binance_date}}</td>
     </tr>
 
@@ -91,5 +87,20 @@
     </tr>
 
 </table>
+
+
+<!--<div>-->
+<!--    {% for value in expected_df %}-->
+<!--    <div>1시간 업비트 회귀 계수 : {{expected_df.up_coef6}}</div>-->
+<!--    <div>6시간 업비트 회귀 계수 : {{expected_df.up_coef6}}</div>-->
+<!--    <div>1시간 바이낸스 회귀 계수 : {{expected_df.up_coef6}}</div>-->
+<!--    <div>바이낸스 입금 가능 : {{expected_df.up_coef6}}</div>-->
+<!--    <div>바이낸스 출금 가능 : {{expected_df.up_coef6}}</div>-->
+<!--    <div>바이낸스 종가 : {{expected_df.up_coef6}}</div>-->
+<!--    <div>바이낸스 날짜 : {{expected_df.up_coef6}}</div>-->
+<!--    <div>바이낸스 괴리율 정도 : {{expected_df.up_coef6}}</div>-->
+<!--    <div>바이낸스 괴리율 정도 : {{expected_df.up_coef6}}</div>-->
+<!--    {% endfor %}-->
+<!--</div>-->
 </body>
 </html>
