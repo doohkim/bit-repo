@@ -82,7 +82,7 @@ def exchange_binance_multiple_result(request):
                         df[column].fillna(df[column][up_min_index - 1], inplace=True)
             # 6시간 바이낸스 괴리율 정도
             if df['binance_discrepancy_rate'].std() == 0:
-                analytics_data_dict['binance_degree_of_discrepancy'] = 0
+                analytics_data_dict['binance_degree_of_discrepancy'] = 0.5
             elif df['binance_discrepancy_rate'].std() != 0:
                 binance_degree_of_discrepancy = (df['binance_discrepancy_rate'][0] - df[
                     'binance_discrepancy_rate'].mean()) / df['binance_discrepancy_rate'].std()

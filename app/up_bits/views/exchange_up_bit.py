@@ -9,6 +9,7 @@ from config.global_variable import selected_coin_kind, selected_coins
 from up_bits.models import UpBitMarket
 import numpy as np
 
+
 def analytics_view(request):
     date_time_now = timezone.now() + timezone.timedelta(hours=3) - timezone.timedelta(minutes=1)
     date_time_now_one_minute_ago = timezone.now() + timezone.timedelta(hours=9) - timezone.timedelta(minutes=1)
@@ -81,7 +82,7 @@ def analytics_view(request):
                         df[column].fillna(df[column][up_min_index - 1], inplace=True)
 
             if df['up_discrepancy_rate'].std() == 0:
-                analytics_data_dict['up_degree_of_discrepancy'] = 0
+                analytics_data_dict['up_degree_of_discrepancy'] = 0.5
             elif df['up_discrepancy_rate'].std() != 0:
                 up_degree_of_discrepancy = (df['up_discrepancy_rate'][0] - df['up_discrepancy_rate'].mean()) / df[
                     'up_discrepancy_rate'].std()

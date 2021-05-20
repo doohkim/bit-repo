@@ -88,7 +88,7 @@ def exchange_up_bit_multiple_result(request):
                         df[column].fillna(df[column][up_min_index - 1], inplace=True)
 
             if df['up_discrepancy_rate'].std() == 0:
-                analytics_data_dict['up_degree_of_discrepancy'] = 0
+                analytics_data_dict['up_degree_of_discrepancy'] = 0.5
             elif df['up_discrepancy_rate'].std() != 0:
                 up_degree_of_discrepancy = (df['up_discrepancy_rate'][0] - df['up_discrepancy_rate'].mean()) / df[
                     'up_discrepancy_rate'].std()

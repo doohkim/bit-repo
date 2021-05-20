@@ -83,7 +83,7 @@ def binance_buy_exchange_view(request):
                         df[column].fillna(df[column][up_min_index - 1], inplace=True)
             # 6시간 바이낸스 괴리율 정도
             if df['binance_discrepancy_rate'].std() == 0:
-                analytics_data_dict['binance_degree_of_discrepancy'] = 0
+                analytics_data_dict['binance_degree_of_discrepancy'] = 0.5
             elif df['binance_discrepancy_rate'].std() != 0:
                 binance_degree_of_discrepancy = (df['binance_discrepancy_rate'][0] - df[
                     'binance_discrepancy_rate'].mean()) / df['binance_discrepancy_rate'].std()
@@ -96,8 +96,8 @@ def binance_buy_exchange_view(request):
                 up_line_fitter.fit(up_x, up_y)
                 analytics_data_dict['up_coef'] = up_line_fitter.coef_[0][0]
             except Exception as e:
-                # print(e)
-                analytics_data_dict['up_coef'] = e
+                print('매도거래소 회귀 계수 에러', e)
+                analytics_data_dict['up_coef'] = 0
 
             sort_df = df.sort_values('up_date')
             try:
