@@ -2,6 +2,7 @@ secrets.json
 .idea
 *.ipynb*
 .ipynv_checkpoints
+deploy.py
 
 # Created by https://www.toptal.com/developers/gitignore/api/jupyternotebooks,pycharm+all,python,macos,vim,windows,django,linux
 # Edit at https://www.toptal.com/developers/gitignore?templates=jupyternotebooks,pycharm+all,python,macos,vim,windows,django,linux
