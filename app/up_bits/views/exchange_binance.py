@@ -5,7 +5,7 @@ import datetime
 from django.utils import timezone
 from django.db.models import Q
 import pandas as pd
-from config.global_variable import selected_coin_kind, selected_coins
+from config.global_variable import selected_coins
 from up_bits.models import UpBitMarket
 import numpy as np
 
@@ -24,8 +24,9 @@ def binance_buy_exchange_view(request):
                                                    date_time_now.hour,
                                                    date_time_now.minute, tzinfo=pytz.UTC)
 
+    # select_coin_df = pd.read_csv('./selected_coin_list_test.csv')
+    # selected_coins = list(select_coin_df['0'])
     each_coin_analytics_dict = dict()
-    # for coin_name in selected_coin_kind.values():
     for coin_name in selected_coins:
         analytics_data_dict = dict()
 
@@ -81,6 +82,7 @@ def binance_buy_exchange_view(request):
                     elif 'up' in column:
                         up_min_index = min(up_isnull_index_list)
                         df[column].fillna(df[column][up_min_index - 1], inplace=True)
+
             # 6시간 바이낸스 괴리율 정도
             if df['binance_discrepancy_rate'].std() == 0:
                 analytics_data_dict['binance_degree_of_discrepancy'] = 0.5
@@ -88,6 +90,7 @@ def binance_buy_exchange_view(request):
                 binance_degree_of_discrepancy = (df['binance_discrepancy_rate'][0] - df[
                     'binance_discrepancy_rate'].mean()) / df['binance_discrepancy_rate'].std()
                 analytics_data_dict['binance_degree_of_discrepancy'] = binance_degree_of_discrepancy
+
             # 1시간 매도 거래소 회귀 계수
             try:
                 up_x = np.arange(1, 31).reshape(-1, 1)
@@ -96,9 +99,10 @@ def binance_buy_exchange_view(request):
                 up_line_fitter.fit(up_x, up_y)
                 analytics_data_dict['up_coef'] = up_line_fitter.coef_[0][0]
             except Exception as e:
-                print('매도거래소 회귀 계수 에러', e)
+                # print('매도거래소 회귀 1시간 계수 에러', e)
                 analytics_data_dict['up_coef'] = 0
 
+            # 6시간 매도 거래소 회귀 계수
             sort_df = df.sort_values('up_date')
             try:
                 up_x6 = np.arange(1, len(sort_df) + 1).reshape(-1, 1)
@@ -107,9 +111,10 @@ def binance_buy_exchange_view(request):
                 up_line_fitter6.fit(up_x6, up_y6)
                 analytics_data_dict['up_coef6'] = up_line_fitter6.coef_[0][0]
             except Exception as e:
-                # print(e)
-                analytics_data_dict['up_coef6'] = e
+                # print('매도거래소 6시간 회귀 계수 에러', e)
+                analytics_data_dict['up_coef6'] = 0
 
+            # 1시간 매수 거래소 회귀 계수
             try:
                 binance_x = np.arange(1, 31).reshape(-1, 1)
                 binance_y = df.head(30).sort_values('binance_date')['binance_close_price'].values.reshape(-1, 1)
@@ -118,8 +123,8 @@ def binance_buy_exchange_view(request):
                 analytics_data_dict['binance_coef'] = binance_line_fitter.coef_[0][0]
                 # analytics_data_dict['up_price_trend'] = up_price_trend[0][0]
             except Exception as e:
-                # print(e)
-                analytics_data_dict['binance_coef'] = e
+                # print('매수거래소 1시간 회귀 계수 에러', e)
+                analytics_data_dict['binance_coef'] = 0
 
             binance_first_obj = binance_obj.first()
             analytics_data_dict['binance_deposit_status'] = binance_first_obj.deposit_status
@@ -127,11 +132,6 @@ def binance_buy_exchange_view(request):
             analytics_data_dict['binance_expected_revenue_rate'] = binance_first_obj.expected_revenue_rate
             analytics_data_dict['binance_close_price'] = binance_first_obj.close_price
             analytics_data_dict['binance_date'] = binance_first_obj.candle_date_time_kst
-
-            # # 6시간 바이낸스 괴리율 정도
-            # binance_degree_of_discrepancy = (df['binance_discrepancy_rate'][0] - df[
-            #     'binance_discrepancy_rate'].mean()) / df['binance_discrepancy_rate'].std()
-            # analytics_data_dict['binance_degree_of_discrepancy'] = binance_degree_of_discrepancy
 
             up_first_obj = up_obj.first()
             analytics_data_dict['up_deposit_status'] = up_first_obj.deposit_status
@@ -206,8 +206,10 @@ def binance_buy_exchange_view(request):
     try:
         result_index = pd.to_numeric(expected_df['total']).idxmax(axis=0)
     except Exception as e:
-        result_index = e
-        return render(request, "result_index")
+        context = {
+            "error": e
+        }
+        return render(request, 'market/error.html', context)
 
     context = {
         'coin': result_index,
@@ -218,4 +220,4 @@ def binance_buy_exchange_view(request):
         "scaled_up_coef": expected_df.iloc[-1].scaled_up_coef,
         "scaled_binance_coef": expected_df.iloc[-1].scaled_binance_coef,
     }
-    return render(request, 'market/binance_buy_exchange.html', context)
+    return render(request, 'market/exchange_binance_to_up_max.html', context)

@@ -2,10 +2,9 @@ import pytz
 from django.shortcuts import render
 from sklearn.linear_model import LinearRegression
 import datetime
-from django.utils import timezone
 from django.db.models import Q
 import pandas as pd
-from config.global_variable import selected_coin_kind
+from config.global_variable import selected_coins
 from up_bits.models import UpBitMarket
 import numpy as np
 
@@ -14,7 +13,7 @@ def test_expected_bit_to_up_view(request):
     datetime_now_before_one_minute = datetime.datetime(2021, 5, 12, 16, 52, tzinfo=pytz.UTC)
     datetime_now_six_hours_ago = datetime.datetime(2021, 5, 12, 10, 52, tzinfo=pytz.UTC)
     each_coin_analytics_dict = dict()
-    for coin_name in selected_coin_kind.values():
+    for coin_name in selected_coins:
         analytics_data_dict = dict()
 
         market_obj = UpBitMarket.objects.get(coin=coin_name)
@@ -196,7 +195,7 @@ def test_expected_table_view(request):
     datetime_now_before_one_minute = datetime.datetime(2021, 5, 12, 16, 52, tzinfo=pytz.UTC)
     datetime_now_six_hours_ago = datetime.datetime(2021, 5, 12, 10, 52, tzinfo=pytz.UTC)
     each_coin_analytics_dict = dict()
-    for coin_name in selected_coin_kind.values():
+    for coin_name in selected_coins:
         analytics_data_dict = dict()
 
         market_obj = UpBitMarket.objects.get(coin=coin_name)

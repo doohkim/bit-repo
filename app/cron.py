@@ -49,7 +49,9 @@ def search_binance():
         datetime_data = datetime.datetime.strptime(time_string, '%Y-%m-%dT%H:%M') + timedelta(hours=9)
         datetime_data = datetime.datetime(datetime_data.year, datetime_data.month, datetime_data.day,
                                           datetime_data.hour, datetime_data.minute)
+        # BTC 거래소
         market_name = symbol.split('/')[1]
+        # coin 종류
         coin_kind_name = symbol.split('/')[0]
         # kind['market'] != 'KRW-BTC' and kind['market'].split('-')[0] != 'BTC':
 
@@ -73,15 +75,15 @@ def search_binance():
             obj, _ = UpBitMarket.objects.get_or_create(coin=coin_kind_name)
         except Exception as e:
             print('market model create Exception', e)
-            obj, _ = UpBitMarket.objects.get_or_create(
-                coin=coin_kind_name,
-                up_bit_withdraw_fee=0.0,
-                up_bit_deposit_fee=0.0,
-                up_bit_minimum_with_draw_amount=0.0,
-                binance_withdraw_fee=0.0,
-                binance_deposit_fee=0.0,
-                binance_minimum_with_draw_amount=0.0
-            )
+            # obj, _ = UpBitMarket.objects.get_or_create(
+            #     coin=coin_kind_name,
+            #     up_bit_withdraw_fee=0.0,
+            #     up_bit_deposit_fee=0.0,
+            #     up_bit_minimum_with_draw_amount=0.0,
+            #     binance_withdraw_fee=0.0,
+            #     binance_deposit_fee=0.0,
+            #     binance_minimum_with_draw_amount=0.0
+            # )
 
         up_bit_obj = BitFinanceExchange(
             market=obj,
@@ -108,18 +110,6 @@ def single_compare_time_now_with_response_datetime(current_data, time_now_list):
     if response_datetime != time_now_list:
         c_data['candle_date_time_kst'] = time_now_list
     return c_data
-
-
-# def single_minute_before_5_stamp():
-#     date_time_now = datetime.datetime.now() + timedelta(hours=9)
-#     datetime_now = datetime.datetime(
-#         date_time_now.year,
-#         date_time_now.month,
-#         date_time_now.day,
-#         date_time_now.hour,
-#         date_time_now.minute
-#     )
-#     return datetime_now
 
 
 def with_draw_api_request_up_bit():

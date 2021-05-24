@@ -5,7 +5,7 @@ import datetime
 from django.utils import timezone
 from django.db.models import Q
 import pandas as pd
-from config.global_variable import selected_coin_kind, selected_coins
+from config.global_variable import selected_coins
 from up_bits.models import UpBitMarket
 import numpy as np
 
@@ -199,10 +199,11 @@ def exchange_up_bit_multiple_result(request):
                             | (expected_df['scaled_binance_coef'] <= 0)
                             | (expected_df['scaled_transaction_price'] <= 0)].index
     expected_df = expected_df.drop(cut_index)
+    expected_df = expected_df.sort_values('total', ascending=False)
     data = zip(expected_df.index, expected_df.values)
     context = {
         'data': data,
         'from': '업비트',
         'to': '바이낸스'
     }
-    return render(request, 'market/test_up_bit_expected.html', context)
+    return render(request, 'market/exchange_up_to_binance_multiple.html', context)

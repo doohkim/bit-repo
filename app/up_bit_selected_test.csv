@@ -1,0 +1,163 @@
+,market,korean_name,english_name
+0,KRW-BTC,비트코인,Bitcoin
+1,BTC-ETH,이더리움,Ethereum
+2,BTC-LTC,라이트코인,Litecoin
+3,BTC-XRP,리플,Ripple
+4,BTC-ETC,이더리움클래식,Ethereum Classic
+5,BTC-OMG,오미세고,OmiseGo
+6,BTC-CVC,시빅,Civic
+7,BTC-DGB,디지바이트,DigiByte
+8,BTC-SC,시아코인,Siacoin
+9,BTC-SNT,스테이터스네트워크토큰,Status Network Token
+10,BTC-WAVES,웨이브,Waves
+11,BTC-NMR,뉴메레르,Numeraire
+12,BTC-XEM,넴,NEM
+13,BTC-LBC,엘비알와이크레딧,LBRY Credits
+14,BTC-QTUM,퀀텀,Qtum
+15,BTC-NXT,엔엑스티,Nxt
+16,BTC-BAT,베이직어텐션토큰,Basic Attention Token
+17,BTC-LSK,리스크,Lisk
+18,BTC-RDD,레드코인,ReddCoin
+19,BTC-STEEM,스팀,Steem
+20,BTC-DOGE,도지코인,Dogecoin
+21,BTC-BNT,뱅코르,Bancor
+22,BTC-XLM,스텔라루멘,Lumen
+23,BTC-ARDR,아더,Ardor
+24,BTC-KMD,코모도,Komodo
+25,BTC-ARK,아크,Ark
+26,BTC-ADX,애드엑스,AdEx
+27,BTC-SYS,시스코인,SysCoin
+28,BTC-ANT,아라곤,Aragon
+29,BTC-STORJ,스토리지,Storj
+30,BTC-GRS,그로스톨코인,Groestlcoin
+31,BTC-REP,어거,Augur
+32,BTC-RLC,아이젝,iEx.ec
+33,BTC-EMC2,아인스타이늄,Einsteinium
+34,BTC-ADA,에이다,Ada
+35,BTC-MANA,디센트럴랜드,Decentraland
+36,BTC-SBD,스팀달러,SteemDollars
+37,BTC-RCN,리피오크레딧네트워크,Ripio Credit Network
+38,BTC-POWR,파워렛저,Power ledger
+39,BTC-DNT,디스트릭트0x,district0x
+40,BTC-IGNIS,이그니스,Ignis
+41,BTC-ZRX,제로엑스,0x Protocol
+42,BTC-TRX,트론,TRON
+43,BTC-TUSD,트루USD,TrueUSD
+44,BTC-LRC,루프링,Loopring
+45,BTC-DMT,디마켓,DMarket
+46,BTC-POLY,폴리매쓰,Polymath
+47,BTC-PRO,프로피,Propy
+48,BTC-BCH,비트코인캐시,Bitcoin Cash
+49,BTC-MFT,메인프레임,Mainframe
+50,BTC-LOOM,룸네트워크,Loom Network
+51,BTC-RFR,리퍼리움,Refereum
+52,BTC-RVN,레이븐코인,Ravencoin
+53,BTC-BFT,비에프토큰,BnkToTheFuture
+54,BTC-GO,고체인,GoChain
+55,BTC-UPP,센티넬프로토콜,Sentinel Protocol
+56,BTC-ENJ,엔진코인,Enjin
+57,BTC-EDR,엔도르,Endor
+58,BTC-MTL,메탈,Metal
+59,BTC-PAX,팩소스스탠다드,Paxos Standard
+60,BTC-MOC,모스코인,Moss Coin
+61,BTC-ZIL,질리카,Zilliqa
+62,BTC-BSV,비트코인에스브이,Bitcoin SV
+63,BTC-IOST,아이오에스티,IOST
+64,BTC-NCASH,뉴클리어스비전,Nucleus Vision
+65,BTC-DENT,덴트,Dent
+66,BTC-ELF,엘프,aelf
+67,BTC-BTT,비트토렌트,BitTorrent
+68,BTC-VITE,바이트토큰,Vite
+69,BTC-IOTX,아이오텍스,IoTeX
+70,BTC-SOLVE,솔브케어,Solve.Care
+71,BTC-NKN,엔케이엔,NKN
+72,BTC-META,메타디움,Metadium
+73,BTC-ANKR,앵커,Ankr
+74,BTC-CRO,크립토닷컴체인,Crypto.com Chain
+75,BTC-FSN,퓨전,Fusion
+76,BTC-ORBS,오브스,Orbs
+77,BTC-AERGO,아르고,Aergo
+78,BTC-PI,플리안,Plian
+79,BTC-ATOM,코스모스,Cosmos
+80,BTC-STPT,에스티피,Standard Tokenization Protocol
+81,BTC-LAMB,람다,Lambda
+82,BTC-EOS,이오스,EOS
+83,BTC-LUNA,루나,Luna
+84,BTC-DAI,다이,Dai
+85,BTC-MKR,메이커,Maker
+86,BTC-BORA,보라,BORA
+87,BTC-TSHP,트웰브쉽스,12SHIPS
+88,BTC-WAXP,왁스,WAX
+89,BTC-MED,메디블록,MediBloc
+90,BTC-MLK,밀크,MiL.k
+91,BTC-PXL,픽셀,PIXEL
+92,BTC-VET,비체인,VeChain
+93,BTC-CHZ,칠리즈,Chiliz
+94,BTC-FX,펑션엑스,Function X
+95,BTC-OGN,오리진프로토콜,Origin Protocol
+96,BTC-ITAM,아이텀,ITAM
+97,BTC-XTZ,테조스,Tezos
+98,BTC-HIVE,하이브,Hive
+99,BTC-HBD,하이브달러,Hive Dollar
+100,BTC-OBSR,옵저버,Observer
+101,BTC-DKA,디카르고,dKargo
+102,BTC-STMX,스톰엑스,StormX
+103,BTC-AHT,아하토큰,AhaToken
+104,BTC-PCI,페이코인,PayCoin
+105,BTC-RINGX,링엑스,RINGX
+106,BTC-LINK,체인링크,Chainlink
+107,BTC-KAVA,카바,Kava
+108,BTC-JST,저스트,JUST
+109,BTC-CHR,크로미아,Chromia
+110,BTC-DAD,다드,DAD
+111,BTC-TON,톤,TON
+112,BTC-CTSI,카르테시,Cartesi
+113,BTC-DOT,폴카닷,Polkadot
+114,BTC-COMP,컴파운드,Compound
+115,BTC-SXP,스와이프,Swipe
+116,BTC-HUNT,헌트,HUNT
+117,BTC-ONIT,온버프,ONBUFF
+118,BTC-CRV,커브,Curve
+119,BTC-ALGO,알고랜드,Algorand
+120,BTC-RSR,리저브라이트,Reserve Rights
+121,BTC-OXT,오키드,Orchid
+122,BTC-PLA,플레이댑,PlayDapp
+123,BTC-MARO,마로,Maro
+124,BTC-SAND,샌드박스,The Sandbox
+125,BTC-SUN,썬,SUN
+126,BTC-SRM,세럼,Serum
+127,BTC-QTCON,퀴즈톡,Quiztok
+128,BTC-MVL,엠블,MVL
+129,BTC-GXC,지엑스체인,GXChain
+130,BTC-AQT,알파쿼크,Alpha Quark Token
+131,BTC-AXS,엑시인피니티,Axie Infinity
+132,BTC-STRAX,스트라티스,Stratis
+133,BTC-BCHA,비트코인캐시에이비씨,Bitcoin Cash ABC
+134,BTC-GLM,골렘,Golem
+135,BTC-FCT2,피르마체인,FirmaChain
+136,BTC-SSX,썸씽,SOMESING
+137,BTC-FIL,파일코인,Filecoin
+138,BTC-UNI,유니스왑,Uniswap
+139,BTC-BASIC,베이직,Basic
+140,BTC-INJ,인젝티브프로토콜,Injective Protocol
+141,BTC-PROM,프로메테우스,Prometeus
+142,BTC-VAL,밸리디티,Validity
+143,BTC-PSG,파리생제르맹,Paris Saint-Germain Fan Token
+144,BTC-JUV,유벤투스,Juventus Fan Token
+145,BTC-CBK,코박토큰,Cobak Token
+146,BTC-FOR,포튜브,ForTube
+147,BTC-BFC,바이프로스트,Bifrost
+148,BTC-LINA,리니어파이낸스,Linear
+149,BTC-HUM,휴먼스케이프,Humanscape
+150,BTC-PICA,피카,Pica
+151,BTC-CELO,셀로,Celo
+152,BTC-IQ,에브리피디아,Everipedia
+153,BTC-STX,스택스,Stacks
+154,BTC-NEAR,니어프로토콜,NEAR Protocol
+155,BTC-AUCTION,바운스토큰,Bounce
+156,BTC-DAWN,던프로토콜,Dawn Protocol
+157,BTC-FLOW,플로우,Flow
+158,BTC-STRK,스트라이크,Strike
+159,BTC-PUNDIX,펀디엑스,Pundi X
+160,BTC-GRT,그래프,The Graph
+161,BTC-SNX,신세틱스,Synthetix

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <style>
+        table, th, td {
+          border: 1px solid black;
+          border-collapse: collapse;
+        }
+        th, td {
+          padding: 5px;
+        }
+        th {
+          text-align: left;
+        }
+
+    </style>
+    <title>one day one million</title>
+    <h2>{{from}} 매수거래소 {{to}} 매도 거래소 경우</h2>
+
+</head>
+<body>
+<table>
+    <tr>
+        <th>코인</th>
+        <th>{{from}} 종가</th>
+        <th>{{to}} 종가</th>
+        <th>{{from}} 기대 수익률</th>
+        <th>{{from}} 타임스탬프</th>
+        <th>{{to}} 타임스탬프</th>
+        <th>총 점수</th>
+    </tr>
+    {% for coin, value in data %}
+    <tr>
+        <td>{{coin}}</td>
+        <td>{{value.7}}</td>
+        <td>{{value.12}}</td>
+        <td>{{value.6}}</td>
+        <td>{{value.8}}</td>
+        <td>{{value.13}}</td>
+        <td>{{value.21}}</td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>

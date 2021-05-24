@@ -5,7 +5,7 @@ import datetime
 from django.utils import timezone
 from django.db.models import Q
 import pandas as pd
-from config.global_variable import selected_coin_kind, selected_coins
+from config.global_variable import selected_coins
 from up_bits.models import UpBitMarket
 import numpy as np
 
@@ -202,8 +202,10 @@ def analytics_view(request):
     try:
         result_index = pd.to_numeric(expected_df['total']).idxmax(axis=0)
     except Exception as e:
-        result_index = e
-        return render(request, result_index)
+        context = {
+            "error": e
+        }
+        return render(request, 'market/error.html', context)
     context = {
         'coin': result_index,
         "result": each_coin_analytics_dict[result_index],
@@ -213,4 +215,4 @@ def analytics_view(request):
         "scaled_binance_coef": expected_df.iloc[-1].scaled_binance_coef,
         "scaled_up_coef": expected_df.iloc[-1].scaled_up_coef,
     }
-    return render(request, 'market/analytics_view.html', context)
+    return render(request, 'market/exchange_up_bit_max.html', context)

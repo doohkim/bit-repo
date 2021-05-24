@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <style>
+        table, th, td {
+          border: 1px solid black;
+          border-collapse: collapse;
+        }
+        th, td {
+          padding: 5px;
+        }
+        th {
+          text-align: left;
+        }
+
+    </style>
+    <title>one day one million</title>
+    <h2>{{from}} 매수거래소 {{to}} 매도 거래소 경우</h2>
+
+</head>
+<body>
+<table>
+    <tr>
+        <th>코인</th>
+
+        <th>{{from}} 종가</th>
+        <th>{{to}} 종가</th>
+        <th>{{from}} 기대 수익률</th>
+        <th>{{from}} 괴리율 정도</th>
+        <th>{{to}} 매도 1시간 회귀계수</th>
+        <th>{{to}} 매도 6시간 회귀 계수</th>
+
+        <th>{{from}} 매수 1시간 회귀 계수</th>
+        <th>{{from}} 거래대금</th>
+        <th>타임스탬프</th>
+        <th>총 점수</th>
+    </tr>
+    {% for coin, value in data %}
+    <tr>
+        <td>{{coin}}</td>
+
+        <td>{{value.4}}</td>
+        <td>{{value.9}}</td>
+<!--        기대수익률-->
+        <td>{{value.3}}</td>
+<!--        괴리율 정도-->
+        <td>{{value.0}}</td>
+<!--        매도 1시간 회귀 계수-->
+        <td>{{value.12}}</td>
+<!--        매도 6시간 회귀 계수-->
+        <td>{{value.13}}</td>
+<!--        매수 1시간 회귀 계수-->
+        <td>{{value.14}}</td>
+        <td>{{value.11}}</td>
+<!--        타임스탬프-->
+        <td>{{value.5}}</td>
+        <td>{{value.20}}</td>
+
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>

@@ -2,7 +2,8 @@ from .exchange_binance import *
 from .exchange_up_bit import *
 from .exchange_binance_multi import *
 from .exchange_up_bit_multi import *
-
+from .personal_binance import *
+from .personal_up import *
 # import pytz
 # from django.shortcuts import render
 # from sklearn.linear_model import LinearRegression
