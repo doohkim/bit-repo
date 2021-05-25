@@ -158,9 +158,16 @@ def binance_buy_exchange_view(request):
     split_expected_main = expected_df[expected_df['binance_expected_revenue_rate'] <= 100]
     # 100% 보다 낮은 매수 거래소 기대 수익률 테이블에서 max 값
     split_expected_main_max_value = split_expected_main['binance_expected_revenue_rate'].max()
+
     # 100% 보다 낮은 기대 수익률 테이블에서 max 값으로 전체 나누기
-    expected_df['scaled_binance_expected_revenue_rate'] = \
-        expected_df['binance_expected_revenue_rate'] / split_expected_main_max_value
+    try:
+        expected_df['scaled_binance_expected_revenue_rate'] = \
+            expected_df['binance_expected_revenue_rate'] / split_expected_main_max_value
+    except ZeroDivisionError:
+        context = {
+            "error": ZeroDivisionError
+        }
+        return render(request, 'market/error.html', context)
     # 1.0 보다 큰 수 모두 1로 통일
     expected_df.loc[
         (expected_df.scaled_binance_expected_revenue_rate > 1.0), 'scaled_binance_expected_revenue_rate'] = 1.0
@@ -198,9 +205,9 @@ def binance_buy_exchange_view(request):
                             | (expected_df['up_deposit_status'] == False)
                             | (expected_df['up_withdraw_enable'] == False)
                             | (expected_df['scaled_binance_expected_revenue_rate'] <= 0)
-                            | (expected_df['scaled_binance_coef'] <= 0)
+                            # | (expected_df['scaled_binance_coef'] <= 0)
                             | (expected_df['scaled_binance_degree_of_discrepancy'] <= 0)
-                            | (expected_df['scaled_up_coef'] <= 0)
+                            # | (expected_df['scaled_up_coef'] <= 0)
                             | (expected_df['scaled_transaction_price'] <= 0)].index
     expected_df = expected_df.drop(cut_index)
     try:
