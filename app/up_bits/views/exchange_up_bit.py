@@ -186,17 +186,23 @@ def analytics_view(request):
                            (expected_df['scaled_up_coef'] * 0.029) + \
                            (expected_df['scaled_transaction_price'] * 0.17)
 
+    # cut_index = expected_df[(expected_df['up_expected_revenue_rate'] <= 0)
+    #                         | (expected_df['binance_coef'] <= 0)
+    #                         | (expected_df['binance_deposit_status'] == False)
+    #                         | (expected_df['binance_withdraw_enable'] == False)
+    #                         | (expected_df['up_deposit_status'] == False)
+    #                         | (expected_df['up_withdraw_enable'] == False)
+    #                         | (expected_df['scaled_up_expected_revenue_rate'] <= 0)
+    #                         | (expected_df['scaled_up_coef'] <= 0)
+    #                         | (expected_df['scaled_up_degree_of_discrepancy'] <= 0)
+    #                         | (expected_df['scaled_binance_coef'] <= 0)
+    #                         | (expected_df['scaled_transaction_price'] <= 0)].index
     cut_index = expected_df[(expected_df['up_expected_revenue_rate'] <= 0)
                             | (expected_df['binance_coef'] <= 0)
                             | (expected_df['binance_deposit_status'] == False)
                             | (expected_df['binance_withdraw_enable'] == False)
                             | (expected_df['up_deposit_status'] == False)
-                            | (expected_df['up_withdraw_enable'] == False)
-                            | (expected_df['scaled_up_expected_revenue_rate'] <= 0)
-                            # | (expected_df['scaled_up_coef'] <= 0)
-                            | (expected_df['scaled_up_degree_of_discrepancy'] <= 0)
-                            # | (expected_df['scaled_binance_coef'] <= 0)
-                            | (expected_df['scaled_transaction_price'] <= 0)].index
+                            | (expected_df['up_withdraw_enable'] == False)].index
     expected_df = expected_df.drop(cut_index)
 
     try:
